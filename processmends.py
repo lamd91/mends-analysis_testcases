@@ -378,7 +378,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, coarseGridDim_x, fineGridDim_y, fineGridDim_x):
 
 	beforeIteration = iteration - 1
-	par = np.reshape(np.loadtxt('/home/lamd/Documents/cluster/gwes/results/ens_of_parameters_beforeUpdate_0.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x)) # not shown in figure
+	par = np.reshape(np.loadtxt('ens_of_parameters_beforeUpdate_0.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x)) # not shown in figure
 	parIni_min = np.min(par)
 	parIni_max = np.max(par)
 	parUpdated = np.reshape(np.loadtxt('ens_of_parameters_' + str(beforeIteration)  + '.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x))
