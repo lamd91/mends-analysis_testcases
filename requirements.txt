@@ -22,6 +22,7 @@ MarkupSafe==1.1.1
 matplotlib==3.0.3
 mistune==0.8.4
 more-itertools==8.1.0
+-e git+https://github.com/lamd91/mends_testcases.git@cb861dc0a798cda779bee4e6f2905b922918540d#egg=mpstool&subdirectory=mps_toolbox-master
 nbconvert==5.6.1
 nbformat==5.0.3
 notebook==6.0.2
