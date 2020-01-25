@@ -54,7 +54,7 @@ def dataMismatchWithIteration(ensembleSize):
 	return
 
 
-def dataMismatchWithIteration_95pc(ensembleSize, rankMember, nbIter):
+def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
 
 	labelColors = ['b','y','g','m','c','r','k']
 	markers = ['o','^','s','>','*','v','d','<']
