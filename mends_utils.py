@@ -93,7 +93,7 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
 	return
 
 
-def HQ_obs():
+def showObs():
 	"""
 	Plot the synthetic hydraulic head and flow rate observations used for model calibration and/or prediction at all observation points
 	"""
@@ -115,7 +115,7 @@ def HQ_obs():
 	axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
 	for i in range(nrows-1):
 		for j in range(ncols):
-			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
+			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed hydraulic head (H) in red
 			axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
 			axarr[i, j].set_xlim(0, 43200)
 			axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
@@ -142,7 +142,7 @@ def HQ_obs():
 	i = 2
 	k = 0
 	for j in range(ncols):
-		axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
+		axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed flow rates (Q) in red
 		axarr[i,j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
 		axarr[i,j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
 		axarr[i,j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
@@ -164,8 +164,14 @@ def HQ_obs():
 	return
 
 
-def HQ_priorPostEns(iteration, ensembleSize):
+def simDataEns(iteration, ensembleSize):
+	""" 
+	Plot ensemble of simulated data before and after data assimilation at every observation location
 
+	Arguments:
+	iteration -- A scalar indicating the iteration at which the user wants to display the resulting ensemble of simulated data (e.g. the total number of iterations performed with ES-MDA)
+	ensembleSize -- A scalar denoting the size of the ensemble
+	"""
 	# Names of observation locations
 	listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
 
@@ -191,9 +197,9 @@ def HQ_priorPostEns(iteration, ensembleSize):
 	axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
 	for i in range(nrows-1):
 		for j in range(ncols):
-			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
-			axarr[i, j].plot(timeObs, headSimEns_ini[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.4, zorder=1, label='prior') # prior simulated ensemble of 100
-			axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='it=' + str(iteration)) # posterior simulated ensemble of 100
+			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed hydraulic head (H) in red
+			axarr[i, j].plot(timeObs, headSimEns_ini[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.4, zorder=1, label='prior') # prior simulated ensemble
+			axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='it=' + str(iteration)) # posterior simulated ensemble
 			axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
 			axarr[i, j].set_xlim(0, 43200)
 			axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
@@ -226,9 +232,9 @@ def HQ_priorPostEns(iteration, ensembleSize):
 	i = 2
 	k = 0
 	for j in range(ncols):
-		axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
-		axarr[i,j].plot(time, qSimEns_ini[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.8, zorder=1, label='prior') # prior simulated ensemble of 100
-		axarr[i,j].plot(time, qSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='iter '+str(iteration)) # posterior simulated ensemble of 100
+		axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed flow rates (Q) in red
+		axarr[i,j].plot(time, qSimEns_ini[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.8, zorder=1, label='prior') # prior simulated ensemble
+		axarr[i,j].plot(time, qSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='iter '+str(iteration)) # posterior simulated ensemble
 		axarr[i,j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
 		axarr[i,j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
 		axarr[i,j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
@@ -249,8 +255,10 @@ def HQ_priorPostEns(iteration, ensembleSize):
 
 	return
 
-def H_exactPost():
-
+def simHead_rejectionSamplingPosterior():
+	"""
+	Plot the ensemble of simulated data resulting from the posterior ensemble of log K obtained by rejection sampling
+	"""
 	# Names of observation locations
 	listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
 
@@ -259,7 +267,7 @@ def H_exactPost():
 	headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
 
 	# Load last updated ensemble of simulated data
-	headSimEns_last = np.loadtxt('hSim_ens_post.txt') # ensemble of 100
+	headSimEns_last = np.loadtxt('hSim_ens_post.txt') # posterior ensemble calculated with rejection sampling
 
 	obsIndexIntervalByLoc = np.arange(0, headSimEns_last.shape[0]+timeObs.shape[0], timeObs.shape[0])
 	
@@ -275,7 +283,7 @@ def H_exactPost():
 	axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
 	for i in range(nrows):
 		for j in range(ncols):
-			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
+			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed hydraulic head in red
 			axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='post') # posterior simulated ensemble of 100
 	#		axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=8)
 			axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
@@ -298,6 +306,12 @@ def H_exactPost():
 	return
 
 def conditionedCategoricalFields_4members(realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4):
+	"""
+	Plot categorical fields generated throughout the data assimilation procedure for 4 different ensemble members
+
+	Arguments:
+	realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4 -- Each argument is a scalar denoting the index of an ensemble member
+	"""
 
 	ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , (50,500)))
 
