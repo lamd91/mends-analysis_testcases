@@ -18,13 +18,11 @@ import matplotlib.ticker as ticker
 
 def dataMismatchWithIteration(ensembleSize):
 	""" 
-	Plot the evolution of the objective function for each member of the ensemble
+	Plot the objective function calculated at each iteration for each member of the ensemble
 
 	Argument:
 	ensembleSize -- A scalar representing the size of the ensemble
-	
 	"""
-
 	ensembleMemberIndices = np.arange(ensembleSize)
 	labelColors = ['b','y','g','m','c','r','k']
 	markers = ['o','^','s','>','*','v','d','<']
@@ -51,7 +49,6 @@ def dataMismatchWithIteration(ensembleSize):
 	plt.ylabel('Data mismatch',fontsize=8)
 	ttl = axes.title
 	ttl.set_position([.5, 1.02])
-#	plt.title('Evolution of data mismatch with iterations',fontsize=14)
 	plt.savefig('dataMismatch_N' + str(ensembleSize) + '.png', bbox_inches="tight", dpi=300)
 	plt.show()
 
@@ -60,23 +57,20 @@ def dataMismatchWithIteration(ensembleSize):
 
 def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
 	""" 
-	Plot the evolution of the objective function for each member of the ensemble
+	Plot the evolution of the 5th, 50th (median) and 95th percentiles of the distribution of objective function values calculated from the ensemble
 
 	Argument:
 	ensembleSize -- A scalar representing the size of the ensemble
 	rankMember -- A scalar representing the index of the member in the ensemble
 	nbIter -- A scalar representing the maximum number of iterations to display in the plot
-	
 	"""
-	labelColors = ['b','y','g','m','c','r','k']
-	markers = ['o','^','s','>','*','v','d','<']
 	iterations = np.arange(nbIter+1)
 	objFunEns = np.empty((ensembleSize, nbIter+1))
 	objFunEns[:,:] = np.nan
 
 	fig = plt.figure(figsize=(7,4))
 
-	for i in np.arange(ensembleSize):	# plot between quantiles 5% and 95%
+	for i in np.arange(ensembleSize):
 		objFunValuesOfMember = np.reshape(np.log10(np.loadtxt("objFunValues_" + str(i) + ".txt")), (1,-1))
 		length = objFunValuesOfMember.shape[1]
 		objFunEns[i, 0:length] = objFunValuesOfMember
@@ -93,58 +87,8 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
 	plt.xlabel('Iteration',fontsize=10)
 	plt.ylabel('Data mismatch (log10)',fontsize=10)
 	plt.legend(fontsize=10)
-	
 	plt.savefig('dataMismatch_N'+ str(ensembleSize) + '_betweenQ5Q95.png', bbox_inches="tight", dpi=300)
 	plt.show()
-
-	return
-
-
-def H_exactPost():
-
-	# Names of observation locations
-	listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
-
-	# Load array of observation by location
-	timeObs = np.arange(0, 43200+1200, 1200) # to display WITH T0 corresponding to initial head computed from steady-state simulation
-	headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
-
-	# Load last updated ensemble of simulated data
-	headSimEns_last = np.loadtxt('hSim_ens_post.txt') # ensemble of 100
-
-	obsIndexIntervalByLoc = np.arange(0, headSimEns_last.shape[0]+timeObs.shape[0], timeObs.shape[0])
-	
-	nrows = 2
-	ncols = 5
-#	plt.close('all')
-	fig, axarr = plt.subplots(nrows, ncols, figsize=(8, 6))
-	fig.subplots_adjust(hspace=0.3)
-	fig.subplots_adjust(wspace=0.6)
-
-	k = 0	
-	axarr[0, 0].set_ylabel('Hydraulic head (m)', fontsize=9)	
-	axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
-	for i in range(nrows):
-		for j in range(ncols):
-			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
-			axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='post') # posterior simulated ensemble of 100
-	#		axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=8)
-			axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
-	#		if i == 0:
-	#			axarr[i, j].set_xlabel('')		
-			axarr[i, j].set_xlim(0, 43200)
-			axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
-			axarr[i, j].xaxis.set_ticks(np.arange(0,43200,12000))
-			axarr[i, j].set_xticklabels(['0','12','24','36'])
-			axarr[i, j].tick_params(labelsize=8)
-			handles, labels = axarr[i, j].get_legend_handles_labels()
-			k += 1
-	axarr[0, 0].legend([handles[0], handles[-1]], [labels[0], labels[-1]], loc="lower right", scatterpoints=1, fontsize=8)					
-
-
-	figureName = "H_exactPost.pdf" 
-	plt.savefig(figureName, bbox_inches="tight")
-#	plt.show()
 
 	return
 
@@ -153,7 +97,6 @@ def HQ_obs():
 	"""
 	Plot the synthetic hydraulic head and flow rate observations used for model calibration and/or prediction at all observation points
 	"""
-
 	# Names of observation locations
 	listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
 
@@ -306,7 +249,53 @@ def HQ_priorPostEns(iteration, ensembleSize):
 
 	return
 
+def H_exactPost():
 
+	# Names of observation locations
+	listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
+
+	# Load array of observation by location
+	timeObs = np.arange(0, 43200+1200, 1200) # to display WITH T0 corresponding to initial head computed from steady-state simulation
+	headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
+
+	# Load last updated ensemble of simulated data
+	headSimEns_last = np.loadtxt('hSim_ens_post.txt') # ensemble of 100
+
+	obsIndexIntervalByLoc = np.arange(0, headSimEns_last.shape[0]+timeObs.shape[0], timeObs.shape[0])
+	
+	nrows = 2
+	ncols = 5
+#	plt.close('all')
+	fig, axarr = plt.subplots(nrows, ncols, figsize=(8, 6))
+	fig.subplots_adjust(hspace=0.3)
+	fig.subplots_adjust(wspace=0.6)
+
+	k = 0	
+	axarr[0, 0].set_ylabel('Hydraulic head (m)', fontsize=9)	
+	axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
+	for i in range(nrows):
+		for j in range(ncols):
+			axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed H in red
+			axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='post') # posterior simulated ensemble of 100
+	#		axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=8)
+			axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
+	#		if i == 0:
+	#			axarr[i, j].set_xlabel('')		
+			axarr[i, j].set_xlim(0, 43200)
+			axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
+			axarr[i, j].xaxis.set_ticks(np.arange(0,43200,12000))
+			axarr[i, j].set_xticklabels(['0','12','24','36'])
+			axarr[i, j].tick_params(labelsize=8)
+			handles, labels = axarr[i, j].get_legend_handles_labels()
+			k += 1
+	axarr[0, 0].legend([handles[0], handles[-1]], [labels[0], labels[-1]], loc="lower right", scatterpoints=1, fontsize=8)					
+
+
+	figureName = "H_exactPost.pdf" 
+	plt.savefig(figureName, bbox_inches="tight")
+#	plt.show()
+
+	return
 
 def conditionedCategoricalFields_4members(realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4):
 
