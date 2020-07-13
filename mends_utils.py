@@ -17,16 +17,21 @@ import matplotlib.ticker as ticker
 
 
 def dataMismatchWithIteration(ensembleSize):
+	""" 
+	Plot the evolution of the objective function for each member of the ensemble
 
-	ensembleMemberIndices = np.loadtxt('memberIndices_4concatFiles.txt') # load indices of ensemble members
+	Argument:
+	ensembleSize -- A scalar representing the size of the ensemble
+	
+	"""
 
+	ensembleMemberIndices = np.arange(ensembleSize)
 	labelColors = ['b','y','g','m','c','r','k']
 	markers = ['o','^','s','>','*','v','d','<']
 	fig = plt.figure(figsize=(7,4))
 	iter_max = 1 # initialize variable
 
-	for j in ensembleMemberIndices:	# plot evolution of the objective function for each member of the ensemble
-		i = int(j)
+	for j in ensembleMemberIndices:	
 		objFunValuesOfMember = np.reshape(np.loadtxt("objFunValues_" + str(i) + ".txt"),(1,-1)).tolist()
 		iterations = np.reshape(np.arange(len(objFunValuesOfMember[0])),(1,-1)).tolist()
 		maxIterOfMember = max(iterations[0])
@@ -54,7 +59,15 @@ def dataMismatchWithIteration(ensembleSize):
 
 
 def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
+	""" 
+	Plot the evolution of the objective function for each member of the ensemble
 
+	Argument:
+	ensembleSize -- A scalar representing the size of the ensemble
+	rankMember -- A scalar representing the index of the member in the ensemble
+	nbIter -- A scalar representing the maximum number of iterations to display in the plot
+	
+	"""
 	labelColors = ['b','y','g','m','c','r','k']
 	markers = ['o','^','s','>','*','v','d','<']
 	iterations = np.arange(nbIter+1)
@@ -137,6 +150,9 @@ def H_exactPost():
 
 
 def HQ_obs():
+	"""
+	Plot the synthetic hydraulic head and flow rate observations used for model calibration and/or prediction at all observation points
+	"""
 
 	# Names of observation locations
 	listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
