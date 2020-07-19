@@ -307,12 +307,11 @@ def simHead_rejectionSamplingPosterior():
 
 def conditionedCategoricalFields_4members(realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4):
 	"""
-	Plot categorical fields generated throughout the data assimilation procedure for 4 different ensemble members
+	Plot categorical fields generated throughout the data assimilation procedure (see the specified iterations in for loop) for 4 different ensemble members
 
 	Arguments:
 	realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4 -- Each argument is a scalar denoting the index of an ensemble member
 	"""
-
 	ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , (50,500)))
 
 	ncols = 4
@@ -320,7 +319,6 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 	grid = GridSpec(nrows, ncols, wspace=0.3, hspace=0.1)
 	fig = plt.figure(figsize=(7,8))
 	fig.clf()
-
 
 	k = 0
 	for realizationRank in np.array([realizationRank_member1, realizationRank_member2]):	
@@ -333,8 +331,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 		start_index = 0
 		end_index = 1
 
-		for i in np.array([1,2,3,4,8,12,16]):
-
+		for i in np.array([1,2,3,4,8,12,16]): # show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
 			ax = fig.add_subplot(grid[start_index:end_index, k:k+2])	
 
 			# Load data
@@ -364,8 +361,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 		start_index = 8
 		end_index = start_index + 1
 
-		for i in np.array([1,2,3,4,8,12,16]):
-
+		for i in np.array([1,2,3,4,8,12,16]): # show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
 			ax = fig.add_subplot(grid[start_index:end_index, k:k+2])	
 
 			# Load data
@@ -392,9 +388,10 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 
 	return
 
-
 def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, coarseGridDim_x, fineGridDim_y, fineGridDim_x):
-
+	"""
+	
+	"""
 	beforeIteration = iteration - 1
 	par = np.reshape(np.loadtxt('ens_of_parameters_beforeUpdate_0.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x)) # not shown in figure
 	parIni_min = np.min(par)
@@ -483,28 +480,40 @@ def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, c
 	return
 
 
-def rmse(ensembleSize, criticalLength, lastIt):
+def rmse(ensembleSize, criticalLength, lastIt, gridDims):
+	"""
+	Compute at each iteration the RMSE between the ensemble mean estimate and the reference value averaged over all pixels of the field.
 
-	ref = np.reshape(np.loadtxt('ref.txt') , (50,500))[:,0:criticalLength]			
+	Arguments:
+	ensembleSize -- A scalar denoting the size of the ensemble
+	criticalLength -- A scalar denoting the length in gridblocks used to localize the update during the assimilation
+	lastIt -- A scalar indicating the last update iteration for which to compute the RMSE
+	gridDims -- A tuple denoting the dimensions of the 2D grid
+	
+	Return:
+	rmseWithIterations -- A list of floats corresponding to the RMSE value from iteration 0 (before any update) up to lastIt
+	"""
+	ref = np.reshape(np.loadtxt('ref.txt'), gridDims)[:,0:criticalLength]			
 
-	nbOfElements = 25000
+	nbOfElements = gridDims[0]*gridDims[1] 
 	parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :],(nbOfElements, ensembleSize))
-	ensMean_ini = np.reshape(np.dot(parEns_ini, np.ones((ensembleSize, 1))/ensembleSize), (50,500))[:,0:criticalLength]
-	rmse_ini = np.sqrt(np.sum((ref-ensMean_ini)**2)/(50*criticalLength))
+	ensMean_ini = np.reshape(np.dot(parEns_ini, np.ones((ensembleSize, 1))/ensembleSize), gridDims)[:,0:criticalLength]
+	rmse_ini = np.sqrt(np.sum((ref-ensMean_ini)**2)/(gridDims[0]*criticalLength))
 
 	rmseWithIterations = []
 	rmseWithIterations.append(rmse_ini)
 	for i in np.arange(1, lastIt+1):
 		parEns_calib = np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[0:nbOfElements, :],(nbOfElements, ensembleSize))
-		ensMean_calib = np.reshape(np.dot(parEns_calib, np.ones((ensembleSize, 1))/ensembleSize), (50, 500))[:,0:criticalLength]
-		rmse_fin = np.sqrt(np.sum((ref-ensMean_calib)**2)/(50*criticalLength))
+		ensMean_calib = np.reshape(np.dot(parEns_calib, np.ones((ensembleSize, 1))/ensembleSize), gridDims)[:,0:criticalLength]
+		rmse_fin = np.sqrt(np.sum((ref-ensMean_calib)**2)/(gridDims[0]*criticalLength))
 		rmseWithIterations.append(rmse_fin)
 
 	return rmseWithIterations
 
 
 def meanMaps_vs_ref(gridDim_x, gridDim_y):
-
+	"""
+	"""
 	# Make figure
 	fig, axs = plt.subplots(8, 1, figsize=(7,7), sharex=True)
 	axs.ravel()
@@ -563,7 +572,6 @@ def meanMaps_vs_ref(gridDim_x, gridDim_y):
 	#plt.savefig('meanMapB_paramNearObs.eps')
 
 	return
-
 
 def meanVarianceReduction(ensembleSize, criticalLength, lastIt):
 
@@ -669,7 +677,6 @@ def shannonEntropy(ensembleSize, criticalLength, iteration):
 		entropy_list.append(entropy)
 		
 	return entropy_list
-
 
 
 def ensembleOfConnectFunc(ensSize, fineGridDim_x, fineGridDim_y, axis, category):
