@@ -16,19 +16,19 @@ import matplotlib.ticker as ticker
 
 def dataMismatchWithIteration(ensembleSize):
     """ 
-    Plot the objective function calculated at each iteration for each member of the ensemble
+    Plot obj function value at each iteration for each ensemble member
 
     Argument:
     ensembleSize -- A scalar representing the size of the ensemble
     """
     ensembleMemberIndices = np.arange(ensembleSize)
-    labelColors = ['b','y','g','m','c','r','k']
-    markers = ['o','^','s','>','*','v','d','<']
+    labelColors = ['b', 'y', 'g', 'm', 'c', 'r', 'k']
+    markers = ['o', '^', 's', '>', '*', 'v', 'd', '<']
     fig = plt.figure(figsize=(7,4))
-    iter_max = 1 # initialize variable
+    iter_max = 1  # Initialize variable
 
     for j in ensembleMemberIndices: 
-        objFunValuesOfMember = np.reshape(np.loadtxt("objFunValues_" + str(i) + ".txt"),(1,-1)).tolist()
+        objFunValuesOfMember = np.reshape(np.loadtxt(f'objFunValues_{i}.txt'),(1,-1)).tolist()
         iterations = np.reshape(np.arange(len(objFunValuesOfMember[0])),(1,-1)).tolist()
         maxIterOfMember = max(iterations[0])
         if maxIterOfMember > iter_max:
@@ -40,14 +40,15 @@ def dataMismatchWithIteration(ensembleSize):
         axes.set_xlim([0,iter_max+1])
 
     handles, labels = axes.get_legend_handles_labels()
-    plt.legend([handles[0]], [labels[0]], loc="upper right", fontsize=8)
+    plt.legend([handles[0]], [labels[0]], loc='upper right', fontsize=8)
     plt.xticks(fontsize=8)
     plt.yticks(fontsize=8)
     plt.xlabel('Iteration',fontsize=8)
     plt.ylabel('Data mismatch',fontsize=8)
     ttl = axes.title
     ttl.set_position([.5, 1.02])
-    plt.savefig('dataMismatch_N' + str(ensembleSize) + '.png', bbox_inches="tight", dpi=300)
+    plt.savefig(f'dataMismatch_N{ensembleSize}.png', 
+                bbox_inches="tight", dpi=300)
     plt.show()
 
     return
@@ -55,12 +56,13 @@ def dataMismatchWithIteration(ensembleSize):
 
 def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
     """ 
-    Plot the evolution of the 5th, 50th (median) and 95th percentiles of the distribution of objective function values calculated from the ensemble
+    Plot evolution of 5th, 50th (median) and 95th percentiles 
+    of distribution of obj function values calculated from ensemble
 
     Argument:
     ensembleSize -- A scalar representing the size of the ensemble
-    rankMember -- A scalar representing the index of the member in the ensemble
-    nbIter -- A scalar representing the maximum number of iterations to display in the plot
+    rankMember -- A scalar representing the index of the ensemble member
+    nbIter -- A scalar representing the max number of iterations to show
     """
     iterations = np.arange(nbIter+1)
     objFunEns = np.empty((ensembleSize, nbIter+1))
@@ -69,15 +71,18 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
     fig = plt.figure(figsize=(7,4))
 
     for i in np.arange(ensembleSize):
-        objFunValuesOfMember = np.reshape(np.log10(np.loadtxt("objFunValues_" + str(i) + ".txt")), (1,-1))
+        objFunValuesOfMember = np.reshape(np.log10(np.loadtxt(
+                                                   f'objFunValues_{i}.txt')), (1,-1))
         length = objFunValuesOfMember.shape[1]
         objFunEns[i, 0:length] = objFunValuesOfMember
 
     q = [5,50,95]   
     objFunEns_q = np.nanpercentile(objFunEns, q=q, axis=0)
-    plt.fill_between(iterations, objFunEns_q[0], objFunEns_q[2], facecolor='blue', alpha=0.5) 
+    plt.fill_between(iterations, objFunEns_q[0], objFunEns_q[2], facecolor='blue', 
+                     alpha=0.5) 
     plt.plot(iterations, objFunEns_q[1], c='blue', label='median')
-    plt.plot(iterations, objFunEns[rankMember], c='k', label='member '+str(rankMember), linestyle='--')
+    plt.plot(iterations, objFunEns[rankMember], c='k', label='member '+str(rankMember),
+             linestyle='--')
     plt.xlim([0,nbIter+0.25])
     plt.xticks(np.arange(1,nbIter+1))
     plt.xticks(fontsize=10)
@@ -85,7 +90,8 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
     plt.xlabel('Iteration',fontsize=10)
     plt.ylabel('Data mismatch (log10)',fontsize=10)
     plt.legend(fontsize=10)
-    plt.savefig('dataMismatch_N'+ str(ensembleSize) + '_betweenQ5Q95.png', bbox_inches="tight", dpi=300)
+    plt.savefig(f'dataMismatch_N{ensembleSize}_betweenQ5Q95.png',
+                bbox_inches="tight", dpi=300)
     plt.show()
 
     return
@@ -93,10 +99,20 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
 
 def showObs():
     """
-    Plot the synthetic hydraulic head and flow rate observations used for model calibration and/or prediction at all observation points
+    Plot the synthetic hydraulic head and flow rate observations used for
+    model calibration and/or prediction at all observation points
     """
     # Names of observation locations
-    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
+    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 
+                              'Obs. point #2\nx=0, z=150m',
+                              'Obs. point #3\nx=0, z=250m',
+                              'Obs. point #4\nx=0, z=350m',
+                              'Obs. point #5\nx=0, z=450m',
+                              'Obs. point #6\nx=1km, z=50m',
+                              'Obs. point #7\nx=1km, z=150m',
+                              'Obs. point #8\nx=1km, z=250m',
+                              'Obs. point #9\nx=1km, z=350m',
+                              'Obs. point #10\nx=1km, z=450m']
 
     # Load array of observation by location
     timeObs = np.arange(0, 43200+1200, 1200) # includes time zero which corresponds to the initial head computed from the steady-state simulation
@@ -113,19 +129,24 @@ def showObs():
     axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
     for i in range(nrows-1):
         for j in range(ncols):
-            axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed hydraulic head (H) in red
+            # Plot observed hydraulic head (H) in red
+            axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', 
+                                edgecolors='none', label='obs', zorder=3) 
             axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
             axarr[i, j].set_xlim(0, 43200)
-            axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
+            axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, 
+                                 np.max(headObsByLoc[1:, k])+10)
             axarr[i, j].xaxis.set_ticks(np.arange(0,43200,12000))
             axarr[i, j].set_xticklabels(['0','12','24','36'])
             axarr[i, j].tick_params(labelsize=8)
             handles, labels = axarr[i, j].get_legend_handles_labels()
             k += 1
-    axarr[0, 0].legend([handles[0]], [labels[0]], loc="lower right", scatterpoints=1, fontsize=8)                   
+    axarr[0, 0].legend([handles[0]], [labels[0]], loc="lower right", 
+                       scatterpoints=1, fontsize=8)                   
 
     # Names of observation locations
-    listOfFlowrateObsLocations = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5']
+    listOfFlowrateObsLocations = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 
+                                  'Zone 5']
     # Load array of observation by location
     time = np.arange(300, 6300, 300)
     qObsByLoc = np.loadtxt('qObs_byLoc.txt')
@@ -140,7 +161,9 @@ def showObs():
     i = 2
     k = 0
     for j in range(ncols):
-        axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed flow rates (Q) in red
+        # Observed flow rates (Q) in red
+        axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
+                           edgecolors='none', label='obs', zorder=3) 
         axarr[i,j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
         axarr[i,j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
         axarr[i,j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
@@ -155,7 +178,7 @@ def showObs():
     axarr[2,3].yaxis.set_ticks(np.array([0]))   
     axarr[2,3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
-#   figureName = "HQ_priorPost_" + str(iteration) + "_" + str(ensembleSize) + ".png" 
+#   figureName = f'HQ_priorPost_{iteration)_{ensembleSize}.png'
 #   plt.savefig(figureName, bbox_inches="tight", dpi=300)
 #   plt.show()
 
@@ -164,25 +187,42 @@ def showObs():
 
 def simDataEns(iteration, ensembleSize):
     """ 
-    Plot ensemble of simulated data before and after data assimilation at every observation location
+    Plot ensemble of simulated data before and after data assimilation
+    at every observation location
 
     Arguments:
-    iteration -- A scalar indicating the iteration at which the user wants to display the resulting ensemble of simulated data (e.g. the total number of iterations performed with ES-MDA)
+    iteration -- A scalar indicating the iteration until the resulting
+        ensemble of simulated data is shown (e.g. the total number of 
+        iterations performed with ES-MDA)
     ensembleSize -- A scalar denoting the size of the ensemble
     """
     # Names of observation locations
-    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
+    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 
+                              'Obs. point #2\nx=0, z=150m',
+                              'Obs. point #3\nx=0, z=250m',
+                              'Obs. point #4\nx=0, z=350m',
+                              'Obs. point #5\nx=0, z=450m',
+                              'Obs. point #6\nx=1km, z=50m',
+                              'Obs. point #7\nx=1km, z=150m',
+                              'Obs. point #8\nx=1km, z=250m',
+                              'Obs. point #9\nx=1km, z=350m',
+                              'Obs. point #10\nx=1km, z=450m']
 
     # Load array of observation by location
-    timeObs = np.arange(0, 43200+1200, 1200) # includes time zero which corresponds to the initial head computed from the steady-state simulation
-    headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
-
+   
+    # Time vector includes time zero which corresponds to the initial head 
+    # computed from the steady-state simulation
+    timeObs = np.arange(0, 43200+1200, 1200)  
+    # Head series includes initial steady-state head
+    headObsByLoc = np.loadtxt('hObs_byLoc.txt')
+ 
     # Load prior ensemble of simulated data
-    headSimEns_ini = np.loadtxt('hSim_ens_0_' + str(ensembleSize) + '.txt')
+    headSimEns_ini = np.loadtxt(f'hSim_ens_0_{ensembleSize}.txt')
     # Load last updated ensemble of simulated data
-    headSimEns_last = np.loadtxt('hSim_ens_' + str(iteration) + '_' + str(ensembleSize) +'.txt')
+    headSimEns_last = np.loadtxt(f'hSim_ens_{iteration}_{ensembleSize}.txt')
 
-    obsIndexIntervalByLoc = np.arange(0, headSimEns_ini.shape[0]+timeObs.shape[0], timeObs.shape[0])
+    obsIndexIntervalByLoc = np.arange(0, 
+                headSimEns_ini.shape[0]+timeObs.shape[0], timeObs.shape[0])
     
     nrows = 3
     ncols = 5
@@ -195,18 +235,31 @@ def simDataEns(iteration, ensembleSize):
     axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
     for i in range(nrows-1):
         for j in range(ncols):
-            axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed hydraulic head (H) in red
-            axarr[i, j].plot(timeObs, headSimEns_ini[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.4, zorder=1, label='prior') # prior simulated ensemble
-            axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='it=' + str(iteration)) # posterior simulated ensemble
+            # Observed hydraulic head (H) in red
+            axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', 
+                                edgecolors='none', label='obs', zorder=3)
+            # Simulated ensemble before data assimilation
+            axarr[i, j].plot(timeObs, headSimEns_ini[
+                 obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
+                 c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.4, zorder=1, 
+                 label='prior')
+            # Simulated ensemble after data assimilation
+            axarr[i, j].plot(timeObs, headSimEns_last[
+                 obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
+                 c='b', linewidth=0.4, alpha=0.8, zorder=2, 
+                 label=f'it={iteration}')
             axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
             axarr[i, j].set_xlim(0, 43200)
-            axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
+            axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, 
+                                 np.max(headObsByLoc[1:, k])+10)
             axarr[i, j].xaxis.set_ticks(np.arange(0,43200,12000))
             axarr[i, j].set_xticklabels(['0','12','24','36'])
             axarr[i, j].tick_params(labelsize=8)
-            handles, labels = axarr[i, j].get_legend_handles_labels()
+            shandles, labels = axarr[i, j].get_legend_handles_labels()
             k += 1
-    axarr[0, 0].legend([handles[0], handles[ensembleSize], handles[-1]], [labels[0], labels[ensembleSize], labels[-1]], loc="lower right", scatterpoints=1, fontsize=8)                 
+    axarr[0, 0].legend([handles[0], handles[ensembleSize], handles[-1]], 
+                       [labels[0], labels[ensembleSize], labels[-1]], 
+                       loc="lower right", scatterpoints=1, fontsize=8)                 
 
     # Names of observation locations
     listOfFlowrateObsLocations = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5']
@@ -215,10 +268,11 @@ def simDataEns(iteration, ensembleSize):
     qObsByLoc = np.loadtxt('qObs_byLoc.txt')
 
     # Load prior ensemble of simulated data
-    qSimEns_ini = np.loadtxt('qSim_ens_0_' +  str(ensembleSize) + '.txt') 
-    qSimEns_last = np.loadtxt('qSim_ens_' + str(iteration) + '_' +  str(ensembleSize) + '.txt') 
+    qSimEns_ini = np.loadtxt(f'qSim_ens_0_{ensembleSize}.txt') 
+    qSimEns_last = np.loadtxt(f'qSim_ens_{iteration}_{ensembleSize}.txt') 
 
-    obsIndexIntervalByLoc = np.arange(0, qSimEns_ini.shape[0]+time.shape[0], time.shape[0])
+    obsIndexIntervalByLoc = np.arange(0, qSimEns_ini.shape[0]+time.shape[0], 
+                                      time.shape[0])
     
     axarr[2,0].set_ylabel('Flowrates (m' + r'$^3$' + '/s)', fontsize=9) 
     axarr[2,0].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
@@ -230,9 +284,19 @@ def simDataEns(iteration, ensembleSize):
     i = 2
     k = 0
     for j in range(ncols):
-        axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed flow rates (Q) in red
-        axarr[i,j].plot(time, qSimEns_ini[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.8, zorder=1, label='prior') # prior simulated ensemble
-        axarr[i,j].plot(time, qSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='iter '+str(iteration)) # posterior simulated ensemble
+        # Observed flow rates (Q) in red
+        axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
+                           edgecolors='none', label='obs', zorder=3)
+        # Simulated ensemble before data assimilation
+        axarr[i,j].plot(time, qSimEns_ini[
+                   obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
+                   c=(0.7,0.7,0.7), linewidth=0.4, alpha=0.8, zorder=1, 
+                   label='prior')
+        # Simulated ensemble after data assimilation
+        axarr[i,j].plot(time, qSimEns_last[
+                   obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
+                   c='b', linewidth=0.4, alpha=0.8, zorder=2, 
+                   label=f'iter {iteration}') 
         axarr[i,j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
         axarr[i,j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
         axarr[i,j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
@@ -253,19 +317,34 @@ def simDataEns(iteration, ensembleSize):
 
     return
 
+
 def simHead_rejectionSamplingPosterior():
     """
-    Plot the ensemble of simulated data resulting from the posterior ensemble of log K obtained by rejection sampling
+    Plot the ensemble of simulated data resulting from the posterior ensemble
+    of log K obtained by rejection sampling
     """
     # Names of observation locations
-    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 'Obs. point #2\nx=0, z=150m', 'Obs. point #3\nx=0, z=250m', 'Obs. point #4\nx=0, z=350m', 'Obs. point #5\nx=0, z=450m', 'Obs. point #6\nx=1km, z=50m', 'Obs. point #7\nx=1km, z=150m', 'Obs. point #8\nx=1km, z=250m', 'Obs. point #9\nx=1km, z=350m', 'Obs. point #10\nx=1km, z=450m']
+    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 
+                              'Obs. point #2\nx=0, z=150m',
+                              'Obs. point #3\nx=0, z=250m',
+                              'Obs. point #4\nx=0, z=350m',
+                              'Obs. point #5\nx=0, z=450m',
+                              'Obs. point #6\nx=1km, z=50m',
+                              'Obs. point #7\nx=1km, z=150m',
+                              'Obs. point #8\nx=1km, z=250m',
+                              'Obs. point #9\nx=1km, z=350m',
+                              'Obs. point #10\nx=1km, z=450m']
 
     # Load array of observation by location
-    timeObs = np.arange(0, 43200+1200, 1200) # to display WITH T0 corresponding to initial head computed from steady-state simulation
-    headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
+    # Time vector includes time zero which corresponds to the initial head 
+    # computed from the steady-state simulation
+    timeObs = np.arange(0, 43200+1200, 1200) 
+    # Head series includes initial steady-state head
+    headObsByLoc = np.loadtxt('hObs_byLoc.txt')
 
-    # Load last updated ensemble of simulated data
-    headSimEns_last = np.loadtxt('hSim_ens_post.txt') # posterior ensemble calculated with rejection sampling
+    # Load ensemble of simulated data corresponding to log K ensemble obtained
+    # by rejection sampling 
+    headSimEns_last = np.loadtxt('hSim_ens_post.txt') 
 
     obsIndexIntervalByLoc = np.arange(0, headSimEns_last.shape[0]+timeObs.shape[0], timeObs.shape[0])
     
@@ -281,14 +360,20 @@ def simHead_rejectionSamplingPosterior():
     axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
     for i in range(nrows):
         for j in range(ncols):
-            axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', edgecolors='none', label='obs', zorder=3) # observed hydraulic head in red
-            axarr[i, j].plot(timeObs, headSimEns_last[obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], c='b', linewidth=0.4, alpha=0.8, zorder=2, label='post') # posterior simulated ensemble of 100
+            # Observed hydraulic head in red
+            axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', 
+                                edgecolors='none', label='obs', zorder=3)
+            # Simulated ensemble 
+            axarr[i, j].plot(timeObs, headSimEns_last[
+                 obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
+                 c='b', linewidth=0.4, alpha=0.8, zorder=2, label='post') 
     #       axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=8)
             axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
     #       if i == 0:
     #           axarr[i, j].set_xlabel('')      
             axarr[i, j].set_xlim(0, 43200)
-            axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, np.max(headObsByLoc[1:, k])+10)
+            axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, 
+                                 np.max(headObsByLoc[1:, k])+10)
             axarr[i, j].xaxis.set_ticks(np.arange(0,43200,12000))
             axarr[i, j].set_xticklabels(['0','12','24','36'])
             axarr[i, j].tick_params(labelsize=8)
@@ -303,15 +388,22 @@ def simHead_rejectionSamplingPosterior():
 
     return
 
-def conditionedCategoricalFields_4members(realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4, gridDims):
+
+def conditionedCategoricalFields_4members(realizationRank_member1, 
+                             realizationRank_member2, realizationRank_member3,
+                             realizationRank_member4, gridDims):
     """
-    Plot categorical fields generated throughout the data assimilation procedure (see the specified iterations in for loop) for 4 different ensemble members
+    Plot categorical fields generated throughout the data assimilation 
+    procedure (see the specified iterations in for loop) 
+    for 4 different ensemble members
 
     Arguments:
-    realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4 -- Each argument is a scalar denoting the index of an ensemble member
+    realizationRank_member1, realizationRank_member2, realizationRank_member3,
+        realizationRank_member4 -- Each argument is a scalar denoting the 
+                                   index of an ensemble member
     gridDims -- A tuple denoting the dimensions of the 2D grid
     """
-    ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , gridDim))
+    ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , gridDims))
 
     ncols = 4
     nrows = 17
@@ -320,7 +412,8 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
     fig.clf()
 
     k = 0
-    for realizationRank in np.array([realizationRank_member1, realizationRank_member2]):    
+    for realizationRank in np.array([realizationRank_member1, 
+                                    realizationRank_member2]):    
 
         # For each iteration
         j=0
@@ -330,16 +423,20 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
         start_index = 0
         end_index = 1
 
-        for i in np.array([1,2,3,4,8,12,16]): # show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
+        # Show generated categorical fields at iteration 1, 2, 3, 4, 8, 12, 16
+        for i in np.array([1, 2, 3, 4, 8, 12, 16]):
             ax = fig.add_subplot(grid[start_index:end_index, k:k+2])    
 
             # Load data
             if i == 0:
-                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')[:, realizationRank], gridDims))
+                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
+                                             [:, realizationRank], gridDims))
             else:
-                mpSim = np.flipud(np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[:, realizationRank], gridDims))
+                mpSim = np.flipud(np.reshape(np.loadtxt(
+                      f'ens_of_MPSim_{i}.txt')[:, realizationRank], gridDims))
 
-            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
+            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, 
+                           aspect='auto')
         
             ax.get_xaxis().set_visible(False) # hide axis
             ax.axes.get_yaxis().set_visible(False)
@@ -350,7 +447,8 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
         k = k+2
 
     k = 0
-    for realizationRank in np.array([realizationRank_member3, realizationRank_member4]):    
+    for realizationRank in np.array([realizationRank_member3, 
+                                     realizationRank_member4]):    
 
         # For each iteration
         j=0
@@ -360,18 +458,22 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
         start_index = 8
         end_index = start_index + 1
 
-        for i in np.array([1,2,3,4,8,12,16]): # show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
+        # Show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
+        for i in np.array([1, 2, 3, 4, 8, 12, 16]):
             ax = fig.add_subplot(grid[start_index:end_index, k:k+2])    
 
             # Load data
             if i == 0:
-                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')[:, realizationRank], gridDims))
+                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
+                                             [:, realizationRank], gridDims))
             else:
-                mpSim = np.flipud(np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[:, realizationRank], gridDims))
+                mpSim = np.flipud(np.reshape(np.loadtxt(
+                      f'ens_of_MPSim_{i}.txt')[:, realizationRank], gridDims))
 
-            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
+            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1,
+                           aspect='auto')
         
-            ax.get_xaxis().set_visible(False) # hide axis
+            ax.get_xaxis().set_visible(False)  # Hide axis
             ax.axes.get_yaxis().set_visible(False)
             
             start_index = start_index+1
@@ -382,10 +484,11 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
     ax = fig.add_subplot(grid[16, 1:3])
     im = ax.imshow(ref, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
 
-    ax.get_xaxis().set_visible(False) # hide axis
+    ax.get_xaxis().set_visible(False)  # Hide axis
     ax.axes.get_yaxis().set_visible(False)
 
     return
+
 
 def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, coarseGridDim_x, fineGridDim_y, fineGridDim_x):
     """
@@ -1008,7 +1111,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
     realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4 -- Each argument is a scalar denoting the index of an ensemble member
     gridDims -- A tuple denoting the dimensions of the 2D grid
     """
-    ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , gridDim))
+    ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , gridDims))
 
     ncols = 4
     nrows = 17
@@ -1393,3 +1496,4 @@ def ensembleOfConnectFunc(ensSize, fineGridDim_x, fineGridDim_y, axis, category)
                 connectFunEns_fin[:, j] = connectFun[category]
         
     return connectFunEns_ini, connectFunEns_fin
+
