@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-	
-# Load libraries
 import sys
 import mpstool
 import numpy as np
@@ -305,14 +303,15 @@ def simHead_rejectionSamplingPosterior():
 
 	return
 
-def conditionedCategoricalFields_4members(realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4):
+def conditionedCategoricalFields_4members(realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4, gridDims):
 	"""
 	Plot categorical fields generated throughout the data assimilation procedure (see the specified iterations in for loop) for 4 different ensemble members
 
 	Arguments:
 	realizationRank_member1, realizationRank_member2, realizationRank_member3, realizationRank_member4 -- Each argument is a scalar denoting the index of an ensemble member
+	gridDims -- A tuple denoting the dimensions of the 2D grid
 	"""
-	ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , (50,500)))
+	ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , gridDim))
 
 	ncols = 4
 	nrows = 17
@@ -336,9 +335,9 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 
 			# Load data
 			if i == 0:
-				mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')[:, realizationRank], (50,500)))
+				mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')[:, realizationRank], gridDims))
 			else:
-				mpSim = np.flipud(np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[:, realizationRank], (50,500)))
+				mpSim = np.flipud(np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[:, realizationRank], gridDims))
 
 			im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
 		
@@ -366,9 +365,9 @@ def conditionedCategoricalFields_4members(realizationRank_member1, realizationRa
 
 			# Load data
 			if i == 0:
-				mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')[:, realizationRank], (50,500)))
+				mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')[:, realizationRank], gridDims))
 			else:
-				mpSim = np.flipud(np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[:, realizationRank], (50,500)))
+				mpSim = np.flipud(np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[:, realizationRank], gridDims))
 
 			im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
 		
