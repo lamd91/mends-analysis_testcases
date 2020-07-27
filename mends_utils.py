@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+# Load modules
 import sys
 import mpstool
 import numpy as np
@@ -15,7 +16,7 @@ import matplotlib.ticker as ticker
 
 
 def dataMismatchWithIteration(ensembleSize):
-    """ 
+    """
     Plot obj function value at each iteration for each ensemble member
 
     Argument:
@@ -27,19 +28,21 @@ def dataMismatchWithIteration(ensembleSize):
     fig = plt.figure(figsize=(7, 4))
     iter_max = 1  # Initialize variable
 
-    for j in ensembleMemberIndices: 
+    for j in ensembleMemberIndices:
         objFunValuesOfMember = np.reshape(np.loadtxt(
                                f'objFunValues_{i}.txt'), (1, -1)).tolist()
         iterations = np.reshape(np.arange(len(objFunValuesOfMember[0])), 
-                               (1, -1)).tolist()
+                                (1, -1)).tolist()
         maxIterOfMember = max(iterations[0])
         if maxIterOfMember > iter_max:
             iter_max = maxIterOfMember
         line = plt.plot(iterations[0], np.log10(objFunValuesOfMember[0]), 
-              labelColors[np.remainder(i, 6)], label=f'member i out of {ensembleSize}', 
-              linestyle=':', linewidth=0.5, marker=markers[np.remainder(i, 7)],
-              markersize=4, markeredgecolor='none')[0]
-        line.set_clip_on(False) # set markers on top of axis
+                        labelColors[np.remainder(i, 6)], 
+                        label=f'member i out of {ensembleSize}', 
+                        linestyle=':', linewidth=0.5, 
+                        marker=markers[np.remainder(i, 7)],
+                        markersize=4, markeredgecolor='none')[0]
+        line.set_clip_on(False)  # Set markers on top of axis
         plt.xticks(np.arange(1, iter_max+1, 1))
         axes = plt.gca()
         axes.set_xlim([0, iter_max+1])
@@ -76,18 +79,18 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
     fig = plt.figure(figsize=(7,4))
 
     for i in np.arange(ensembleSize):
-        objFunValuesOfMember = np.reshape(np.log10(np.loadtxt(
-                                                   f'objFunValues_{i}.txt')), (1,-1))
+        objFunValuesOfMember = np.reshape(
+                        np.log10(np.loadtxt(f'objFunValues_{i}.txt')), (1,-1))
         length = objFunValuesOfMember.shape[1]
         objFunEns[i, 0:length] = objFunValuesOfMember
 
     q = [5,50,95]   
     objFunEns_q = np.nanpercentile(objFunEns, q=q, axis=0)
-    plt.fill_between(iterations, objFunEns_q[0], objFunEns_q[2], facecolor='blue', 
-                     alpha=0.5) 
+    plt.fill_between(iterations, objFunEns_q[0], objFunEns_q[2], 
+                     facecolor='blue', alpha=0.5) 
     plt.plot(iterations, objFunEns_q[1], c='blue', label='median')
-    plt.plot(iterations, objFunEns[rankMember], c='k', label='member '+str(rankMember),
-             linestyle='--')
+    plt.plot(iterations, objFunEns[rankMember], c='k', 
+             label=f'member {rankMember}', linestyle='--')
     plt.xlim([0, nbIter+0.25])
     plt.xticks(np.arange(1, nbIter+1))
     plt.xticks(fontsize=10)
@@ -108,7 +111,7 @@ def showObs():
     model calibration and/or prediction at all observation points
     """
     # Names of observation locations
-    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 
+    headObsLocationNames = ['Obs. point #1\nx=0, z=50m', 
                               'Obs. point #2\nx=0, z=150m',
                               'Obs. point #3\nx=0, z=250m',
                               'Obs. point #4\nx=0, z=350m',
@@ -137,7 +140,7 @@ def showObs():
             # Plot observed hydraulic head (H) in red
             axarr[i, j].scatter(timeObs, headObsByLoc[:, k], s=4, c='r', 
                                 edgecolors='none', label='obs', zorder=3) 
-            axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
+            axarr[i, j].set_title(headObsLocationNames[k], fontsize=9)
             axarr[i, j].set_xlim(0, 43200)
             axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, 
                                  np.max(headObsByLoc[1:, k])+10)
@@ -150,7 +153,7 @@ def showObs():
                        scatterpoints=1, fontsize=8)                   
 
     # Names of observation locations
-    listOfFlowrateObsLocations = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 
+    flowrObsLocationNames = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 
                                   'Zone 5']
     # Load array of observation by location
     time = np.arange(300, 6300, 300)
@@ -169,7 +172,7 @@ def showObs():
         # Observed flow rates (Q) in red
         axarr[i, j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
                            edgecolors='none', label='obs', zorder=3) 
-        axarr[i, j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
+        axarr[i, j].set_title(flowrObsLocationNames[k], fontsize=9)
         axarr[i, j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
         axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
         axarr[i, j].xaxis.set_ticks(np.arange(0, 12000, 2000))
@@ -202,7 +205,7 @@ def simDataEns(iteration, ensembleSize):
     ensembleSize -- A scalar denoting the size of the ensemble
     """
     # Names of observation locations
-    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 
+    headObsLocationNames = ['Obs. point #1\nx=0, z=50m', 
                               'Obs. point #2\nx=0, z=150m',
                               'Obs. point #3\nx=0, z=250m',
                               'Obs. point #4\nx=0, z=350m',
@@ -253,21 +256,21 @@ def simDataEns(iteration, ensembleSize):
                  obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
                  c='b', linewidth=0.4, alpha=0.8, zorder=2, 
                  label=f'it={iteration}')
-            axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
+            axarr[i, j].set_title(headObsLocationNames[k], fontsize=9)
             axarr[i, j].set_xlim(0, 43200)
             axarr[i, j].set_ylim(np.min(headObsByLoc[1:, k])-30, 
                                  np.max(headObsByLoc[1:, k])+10)
             axarr[i, j].xaxis.set_ticks(np.arange(0, 43200, 12000))
             axarr[i, j].set_xticklabels(['0', '12', '24', '36'])
             axarr[i, j].tick_params(labelsize=8)
-            shandles, labels = axarr[i, j].get_legend_handles_labels()
+            handles, labels = axarr[i, j].get_legend_handles_labels()
             k += 1
-    axarr[0, 0].legend([handles[0], handles[ensembleSize], handles[-1]], 
-                       [labels[0], labels[ensembleSize], labels[-1]], 
-                       loc="lower right", scatterpoints=1, fontsize=8)                 
+    axarr[0, 0].legend([handles[0], handles[ensembleSize], handles[-1]],
+                       [labels[0], labels[ensembleSize], labels[-1]],
+                       loc="lower right", scatterpoints=1, fontsize=8)
 
     # Names of observation locations
-    listOfFlowrateObsLocations = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5']
+    flowrObsLocationNames = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5']
     # Load array of observation by location
     time = np.arange(300, 6300, 300)
     qObsByLoc = np.loadtxt('qObs_byLoc.txt')
@@ -302,7 +305,7 @@ def simDataEns(iteration, ensembleSize):
                    obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
                    c='b', linewidth=0.4, alpha=0.8, zorder=2, 
                    label=f'iter {iteration}') 
-        axarr[i, j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
+        axarr[i, j].set_title(flowrObsLocationNames[k], fontsize=9)
         axarr[i, j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
         axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
         axarr[i, j].xaxis.set_ticks(np.arange(0, 12000, 2000))
@@ -316,7 +319,7 @@ def simDataEns(iteration, ensembleSize):
     axarr[2, 3].yaxis.set_ticks(np.array([0]))   
     axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
-#   figureName = "HQ_priorPost_" + str(iteration) + "_" + str(ensembleSize) + ".png" 
+#   figureName = f'HQ_priorPost_{iteration}_{ensembleSize}.png'
 #   plt.savefig(figureName, bbox_inches="tight", dpi=300)
 #   plt.show()
 
@@ -329,7 +332,7 @@ def simHead_rejectionSamplingPosterior():
     of log K obtained by rejection sampling
     """
     # Names of observation locations
-    listOfHeadObsLocations = ['Obs. point #1\nx=0, z=50m', 
+    headObsLocationNames = ['Obs. point #1\nx=0, z=50m', 
                               'Obs. point #2\nx=0, z=150m',
                               'Obs. point #3\nx=0, z=250m',
                               'Obs. point #4\nx=0, z=350m',
@@ -351,7 +354,8 @@ def simHead_rejectionSamplingPosterior():
     # by rejection sampling 
     headSimEns_last = np.loadtxt('hSim_ens_post.txt') 
 
-    obsIndexIntervalByLoc = np.arange(0, headSimEns_last.shape[0]+timeObs.shape[0], timeObs.shape[0])
+    obsIndexIntervalByLoc = np.arange(
+            0, headSimEns_last.shape[0]+timeObs.shape[0], timeObs.shape[0])
     
     nrows = 2
     ncols = 5
@@ -360,7 +364,7 @@ def simHead_rejectionSamplingPosterior():
     fig.subplots_adjust(hspace=0.3)
     fig.subplots_adjust(wspace=0.6)
 
-    k = 0   
+    k = 0
     axarr[0, 0].set_ylabel('Hydraulic head (m)', fontsize=9)    
     axarr[1, 0].set_ylabel('Hydraulic head (m)', fontsize=9)
     for i in range(nrows):
@@ -373,7 +377,7 @@ def simHead_rejectionSamplingPosterior():
                  obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
                  c='b', linewidth=0.4, alpha=0.8, zorder=2, label='post') 
     #       axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=8)
-            axarr[i, j].set_title(listOfHeadObsLocations[k], fontsize=9)
+            axarr[i, j].set_title(headObsLocationNames[k], fontsize=9)
     #       if i == 0:
     #           axarr[i, j].set_xlabel('')      
             axarr[i, j].set_xlim(0, 43200)
@@ -393,9 +397,9 @@ def simHead_rejectionSamplingPosterior():
     return
 
 
-def conditionedCategoricalFields_4members(realizationRank_member1, 
-                             realizationRank_member2, realizationRank_member3,
-                             realizationRank_member4, gridDims):
+def conditionedCategoricalFields_4members(
+            realizationRank_member1, realizationRank_member2, 
+            realizationRank_member3, realizationRank_member4, gridDims):
     """
     Plot categorical fields generated throughout the data assimilation 
     procedure (see the specified iterations in for loop) 
@@ -442,7 +446,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1,
             im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, 
                            aspect='auto')
         
-            ax.get_xaxis().set_visible(False) # hide axis
+            ax.get_xaxis().set_visible(False)  # Hide axis
             ax.axes.get_yaxis().set_visible(False)
             
             start_index = start_index+1
@@ -452,7 +456,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1,
 
     k = 0
     for realizationRank in np.array([realizationRank_member3, 
-                                     realizationRank_member4]):    
+                                    realizationRank_member4]):    
 
         # For each iteration
         j=0
@@ -494,7 +498,9 @@ def conditionedCategoricalFields_4members(realizationRank_member1,
     return
 
 
-def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, coarseGridDim_x, fineGridDim_y, fineGridDim_x):
+def updatedCoarseVar_multiresoMPS(
+                iteration, realizationRank, coarseGridDim_y, coarseGridDim_x,
+                fineGridDim_y, fineGridDim_x):
     """
     
     """
@@ -632,14 +638,18 @@ def meanMaps_vs_ref(gridDim_x, gridDim_y):
         
         # Load data
         if i == 0:
-            mpSimEnsMean = np.flipud(np.reshape(np.mean(np.loadtxt('iniMPSimEns.txt'), axis=1), (gridDim_y, gridDim_x)))
+            mpSimEnsMean = np.flipud(
+                    np.reshape(np.mean(np.loadtxt('iniMPSimEns.txt'), axis=1),
+                               (gridDim_y, gridDim_x)))
         else:
-            mpSimEnsMean = np.flipud(np.reshape(np.mean(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt'), axis=1), (gridDim_y, gridDim_x)))
+            mpSimEnsMean = np.flipud(
+                    np.reshape(np.mean(np.loadtxt(f'ens_of_MPSim_{i}.txt'), axis=1),
+                               (gridDim_y, gridDim_x)))
 
         axs[j].tick_params(axis='x', labelsize=10)
         axs[j].tick_params(axis='y', labelsize=10)
-        im = axs[j].imshow(mpSimEnsMean, cmap='rainbow', vmin=0, vmax=1, aspect='auto')
-    #   axs[j].set_title('ensemble mean of categorical MP simulations (it=' + str(i) + ')', fontsize=6)
+        im = axs[j].imshow(mpSimEnsMean, cmap='rainbow', vmin=0, vmax=1,
+                           aspect='auto')
         axs[j].set_yticks([0, 24, 49])
         ylabels = [item.get_text() for item in axs[j].get_yticklabels()]
         ylabels[0] = '0'
@@ -680,27 +690,41 @@ def meanMaps_vs_ref(gridDim_x, gridDim_y):
 
     return
 
-def meanVarianceReduction(ensembleSize, criticalLength, lastIt):
 
-    nbOfElements = 25000
-    parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :], (nbOfElements, ensembleSize))
-    ensVar_ini = np.reshape(np.sum((parEns_ini - np.reshape(np.dot(parEns_ini, np.ones((ensembleSize, ensembleSize))/ensembleSize), (nbOfElements, ensembleSize)))**2, axis=1)/ensembleSize, (50, 500))
+def meanVarianceReduction(ensembleSize, criticalLength, lastIt, gridDims):
+
+    nbOfElements = gridDims[0]*gridDims[1]
+    parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :],
+                            (nbOfElements, ensembleSize))
+    ensVar_ini = np.reshape(
+          np.sum((parEns_ini - 
+                 np.reshape(np.dot(parEns_ini, 
+                                   np.ones((ensembleSize, ensembleSize))/ensembleSize),
+                            (nbOfElements, ensembleSize))
+                  )**2, axis=1)/ensembleSize, gridDims)
     meanEnsVar_ini = np.mean(ensVar_ini[:, 0:criticalLength])
     
     meanEnsVarWithIterations = []
     meanEnsVarWithIterations.append(meanEnsVar_ini)
     for i in np.arange(1, lastIt+1):
-        ens_K_calib = np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt')[0:nbOfElements, :],(nbOfElements, ensembleSize)) 
-        ensVar_fin = np.reshape(np.sum((ens_K_calib - np.reshape(np.dot(ens_K_calib, np.ones((ensembleSize, ensembleSize))/ensembleSize), (nbOfElements, ensembleSize)))**2, axis=1)/ensembleSize, (50, 500))
+        ens_K_calib = np.reshape(
+                np.loadtxt(f'ens_of_MPSim_{i}.txt')[0:nbOfElements, :],
+                (nbOfElements, ensembleSize))
+        ensVar_fin = np.reshape(
+              np.sum((ens_K_calib - np.reshape(np.dot(ens_K_calib, 
+                     np.ones((ensembleSize, ensembleSize))/ensembleSize), 
+                     (nbOfElements, ensembleSize)))**2, axis=1)
+              /ensembleSize, gridDims)
         meanEnsVar_fin = np.mean(ensVar_fin[:, 0:criticalLength])
         meanEnsVarWithIterations.append(meanEnsVar_fin)
     
     return meanEnsVarWithIterations
 
 
-def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt):
+def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt, gridDims):
 
-    ref = np.reshape(np.loadtxt('rejectionSampling_posteriorDist.txt'), (25000,-1))
+    ref = np.reshape(np.loadtxt('rejectionSampling_posteriorDist.txt'), 
+                     (gridDims[0]*gridDims[1], -1))
     ref_indic_f1 = np.zeros(ref.shape)
     ref_indic_f2 = np.zeros(ref.shape)
     ref_indic_f1[np.where(ref == 0)[0], np.where(ref == 0)[1]] = 1
@@ -708,47 +732,7 @@ def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt):
     ref_indic_f1_vector = np.reshape(np.mean(ref_indic_f1, axis=1), (-1, 1)) 
     ref_indic_f2_vector = np.reshape(np.mean(ref_indic_f2, axis=1), (-1, 1))
     
-    relEntropy_list = []
-    for i in np.arange(0, lastIt+1):
-        if i == 0:
-            faciesEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
-        else:
-            faciesEns_ini = np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt'), (-1, ensembleSize))
-
-        indicEns_f1 = np.zeros(faciesEns_ini.shape)
-        indicEns_f2 = np.zeros(faciesEns_ini.shape)
-        indicEns_f1[np.where(faciesEns_ini == 0)[0], np.where(faciesEns_ini == 0)[1]] = 1
-        indicEns_f2[np.where(faciesEns_ini == 1)[0], np.where(faciesEns_ini == 1)[1]] = 1
-        propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), (50, 500))
-        propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), (50, 500))
-
-        propMap_f1_vector = np.reshape(propMap_f1, (-1, 1))
-        propMap_f2_vector = np.reshape(propMap_f2, (-1, 1))
-
-        relEntropy_vector = np.zeros((25000, 1))
-        for i in np.arange(0, 50*500):      
-            if propMap_f1_vector[i] == 0 or ref_indic_f1_vector[i] == 0:
-                relEntropy_t1 = 0
-            else:
-                relEntropy_t1 = ref_indic_f1_vector[i]*np.log2(ref_indic_f1_vector[i]/propMap_f1_vector[i])         
-
-            if propMap_f2_vector[i] == 0 or ref_indic_f2_vector[i] == 0:
-                relEntropy_t2 = 0
-            else:
-                relEntropy_t2 = ref_indic_f2_vector[i]*np.log2(ref_indic_f2_vector[i]/propMap_f2_vector[i]) 
-        
-            relEntropy_vector[i] = relEntropy_t1 + relEntropy_t2
-            
-        relEntropy = np.mean(relEntropy_vector.reshape(50, 500)[:, 0:criticalLength])
-        relEntropy_list.append(relEntropy)
-
-    return relEntropy_list
-
-
-def shannonEntropy(ensembleSize, criticalLength, iteration):
-
-    entropy_list = []
-    lastIt = int(iteration)
+    relativeEntropies = []
     for i in np.arange(0, lastIt+1):
         if i == 0:
             faciesEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
@@ -757,16 +741,74 @@ def shannonEntropy(ensembleSize, criticalLength, iteration):
 
         indicEns_f1 = np.zeros(faciesEns_ini.shape)
         indicEns_f2 = np.zeros(faciesEns_ini.shape)
-        indicEns_f1[np.where(faciesEns_ini == 0)[0], np.where(faciesEns_ini == 0)[1]] = 1
-        indicEns_f2[np.where(faciesEns_ini == 1)[0], np.where(faciesEns_ini == 1)[1]] = 1
-        propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), (50, 500))
-        propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), (50, 500))
+        indicEns_f1[
+                    np.where(faciesEns_ini == 0)[0],
+                    np.where(faciesEns_ini == 0)[1]] = 1
+        indicEns_f2[
+                    np.where(faciesEns_ini == 1)[0], 
+                    np.where(faciesEns_ini == 1)[1]] = 1
+        propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), gridDims)
+        propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), gridDims)
 
         propMap_f1_vector = np.reshape(propMap_f1, (-1, 1))
         propMap_f2_vector = np.reshape(propMap_f2, (-1, 1))
 
-        entropy_vector = np.zeros((25000, 1))
-        for i in np.arange(0, 25000):
+        relEntropy_vector = np.zeros((gridDims[0]*gridDims[1], 1))
+        for i in np.arange(0, gridDims[0]*gridDims[1]):      
+            if propMap_f1_vector[i] == 0 or ref_indic_f1_vector[i] == 0:
+                relEntropy_t1 = 0
+            else:
+                relEntropy_t1 = ref_indic_f1_vector[i] * \
+                                np.log2(ref_indic_f1_vector[i] \
+                                / propMap_f1_vector[i])         
+
+            if propMap_f2_vector[i] == 0 or ref_indic_f2_vector[i] == 0:
+                relEntropy_t2 = 0
+            else:
+                relEntropy_t2 = ref_indic_f2_vector[i] * \
+                                np.log2(ref_indic_f2_vector[i] \
+                                / propMap_f2_vector[i]) \
+        
+            relEntropy_vector[i] = relEntropy_t1 + relEntropy_t2
+            
+        relEntropy = np.mean(
+                relEntropy_vector.reshape(
+                            gridDims[0], gridDims[1])[:, 0:criticalLength])
+        relativeEntropies.append(relEntropy)
+
+    return relativeEntropies
+
+
+def shannonEntropy(ensembleSize, criticalLength, iteration, gridDims):
+
+    entropies = []
+    lastIt = int(iteration)
+    nbOfElements = gridDims[0] * gridDims[1]
+
+    for i in np.arange(0, lastIt+1):
+        if i == 0:
+            faciesEns_ini = np.reshape(
+                    np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
+        else:
+            faciesEns_ini = np.reshape(
+                    np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
+
+        indicEns_f1 = np.zeros(faciesEns_ini.shape)
+        indicEns_f2 = np.zeros(faciesEns_ini.shape)
+        indicEns_f1[
+                np.where(faciesEns_ini == 0)[0], 
+                np.where(faciesEns_ini == 0)[1]] = 1
+        indicEns_f2[
+                np.where(faciesEns_ini == 1)[0], 
+                np.where(faciesEns_ini == 1)[1]] = 1
+        propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), gridDims)
+        propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), gridDims)
+
+        propMap_f1_vector = np.reshape(propMap_f1, (-1, 1))
+        propMap_f2_vector = np.reshape(propMap_f2, (-1, 1))
+
+        entropy_vector = np.zeros((nbOfElements, 1))
+        for i in np.arange(0, nbOfElements):
             
             if propMap_f1_vector[i] == 0:
                 entropy_t1 = 0
@@ -780,29 +822,60 @@ def shannonEntropy(ensembleSize, criticalLength, iteration):
 
             entropy_vector[i] = entropy_t1 + entropy_t2 
             
-        entropy = np.mean(entropy_vector.reshape(50, 500)[:, 0:criticalLength])
-        entropy_list.append(entropy)
+        entropy = np.mean(entropy_vector.reshape(gridDims)[:, 0:criticalLength])
+        entropies.append(entropy)
         
-    return entropy_list
+    return entropies
 
 
-def ensembleOfConnectFunc(ensSize, fineGridDim_x, fineGridDim_y, axis, category):
+def ensembleOfConnectFunc(ensSize, it, fineGridDim_x, fineGridDim_y, axis, category):
+    """
+    Evaluate a connectivity function in the horizontal direction for each
+    member of the categorical field ensemble
 
+    Arguments:
+    ensSize -- An integer indicating the ensemble size
+    it -- An integer indicating an update iteration
+    fineGridDim_x -- An integer denoting the number of grid cells 
+                     along the horizontal axis
+    fineGridDim_y -- An integer denoting the number of grid cells
+                     along the vertical axis
+    axis -- An integer indicating the axis along which to compute the 
+            connectivity (0 means vertical, 1 horizontal)
+    category -- An integer corresponding to the value of the facies
+
+    Return:
+    connectFunEns_ini, connectFunEns_fin -- Each variable corresponds to
+        an array of values of shape (ensSize, it) calculated by the 
+        connectivity function for each categorical field of ensemble
+        before (connectFunEns_ini) and after the data assimilation
+       (connectFunEns_fin)
+    """
     colors=pl.cm.Blues(np.linspace(0.2, 0.8, 2))
-    connectFunEns_ini=np.zeros((fineGridDim_x-1, ensSize))
-    connectFunEns_fin=np.zeros((fineGridDim_x-1, ensSize))
+    
+    # If connectivity is calculated in the horizontal direction
+    if axis == 1:
+        connectFunEns_ini=np.zeros((fineGridDim_x-1, ensSize))
+        connectFunEns_fin=np.zeros((fineGridDim_x-1, ensSize))
+    # Or in the vertical direction
+    else:
+        connectFunEns_ini=np.zeros((fineGridDim_y-1, ensSize))
+        connectFunEns_fin=np.zeros((fineGridDim_y-1, ensSize))
 
-    for i in zip(np.arange(2), np.array([0, 16])):
-        for j in np.arange(0, ensSize):     
+    for i in zip(np.arange(2), np.array([0, it])):
+        for j in np.arange(0, ensSize):
             if i[1] == 0:
-                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns_init.txt')[:, j], (fineGridDim_y, fineGridDim_x)))
+                mpSim = np.flipud(np.reshape(
+                        np.loadtxt('iniMPSimEns_init.txt')[:, j],
+                        (fineGridDim_y, fineGridDim_x)))
                 connectFun = mpstool.connectivity.get_function(mpSim, axis)
                 connectFunEns_ini[:, j] = connectFun[category]
             else:
-                mpSim = np.flipud(np.reshape(np.loadtxt(f'ens_of_MPSim_{i[1]}.txt')[:, j], (fineGridDim_y, fineGridDim_x)))
+                mpSim = np.flipud(np.reshape(
+                        np.loadtxt(f'ens_of_MPSim_{i[1]}.txt')[:, j],
+                        (fineGridDim_y, fineGridDim_x)))
                 connectFun = mpstool.connectivity.get_function(mpSim, axis)
                 connectFunEns_fin[:, j] = connectFun[category]
-        
-    return connectFunEns_ini, connectFunEns_fin
 
+    return connectFunEns_ini, connectFunEns_fin
 
