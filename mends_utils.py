@@ -36,9 +36,9 @@ def dataMismatchWithIteration(ensembleSize):
         if maxIterOfMember > iter_max:
             iter_max = maxIterOfMember
         line = plt.plot(iterations[0], np.log10(objFunValuesOfMember[0]), 
-              labelColors[np.remainder(i,6)],label=f'member i out of {ensembleSize}', 
-              linestyle=':',linewidth=0.5,marker=markers[np.remainder(i, 7)],
-              markersize=4,markeredgecolor='none')[0]
+              labelColors[np.remainder(i, 6)], label=f'member i out of {ensembleSize}', 
+              linestyle=':', linewidth=0.5, marker=markers[np.remainder(i, 7)],
+              markersize=4, markeredgecolor='none')[0]
         line.set_clip_on(False) # set markers on top of axis
         plt.xticks(np.arange(1, iter_max+1, 1))
         axes = plt.gca()
@@ -156,12 +156,12 @@ def showObs():
     time = np.arange(300, 6300, 300)
     qObsByLoc = np.loadtxt('qObs_byLoc.txt')
     
-    axarr[2,0].set_ylabel('Flowrates (m' + r'$^3$' + '/s)', fontsize=9) 
-    axarr[2,0].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,1].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,2].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,4].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 0].set_ylabel('Flowrates (m' + r'$^3$' + '/s)', fontsize=9) 
+    axarr[2, 0].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 1].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 2].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 4].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
     i = 2
     k = 0
@@ -179,9 +179,9 @@ def showObs():
         handles, labels = axarr[i, j].get_legend_handles_labels()
         k += 1
 
-    axarr[2,3].set_ylim(-0.001, 0.001)
-    axarr[2,3].yaxis.set_ticks(np.array([0]))   
-    axarr[2,3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 3].set_ylim(-0.001, 0.001)
+    axarr[2, 3].yaxis.set_ticks(np.array([0]))   
+    axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
 #   figureName = f'HQ_priorPost_{iteration)_{ensembleSize}.png'
 #   plt.savefig(figureName, bbox_inches="tight", dpi=300)
@@ -279,12 +279,12 @@ def simDataEns(iteration, ensembleSize):
     obsIndexIntervalByLoc = np.arange(0, qSimEns_ini.shape[0]+time.shape[0], 
                                       time.shape[0])
     
-    axarr[2,0].set_ylabel('Flowrates (m' + r'$^3$' + '/s)', fontsize=9) 
-    axarr[2,0].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,1].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,2].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-    axarr[2,4].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 0].set_ylabel('Flowrates (m' + r'$^3$' + '/s)', fontsize=9) 
+    axarr[2, 0].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 1].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 2].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 4].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
     i = 2
     k = 0
@@ -312,9 +312,9 @@ def simDataEns(iteration, ensembleSize):
         handles, labels = axarr[i, j].get_legend_handles_labels()
         k += 1
 
-    axarr[2,3].set_ylim(-0.001, 0.001)
-    axarr[2,3].yaxis.set_ticks(np.array([0]))   
-    axarr[2,3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
+    axarr[2, 3].set_ylim(-0.001, 0.001)
+    axarr[2, 3].yaxis.set_ticks(np.array([0]))   
+    axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
 #   figureName = "HQ_priorPost_" + str(iteration) + "_" + str(ensembleSize) + ".png" 
 #   plt.savefig(figureName, bbox_inches="tight", dpi=300)
@@ -407,7 +407,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1,
                                    index of an ensemble member
     gridDims -- A tuple denoting the dimensions of the 2D grid
     """
-    ref = np.flipud(np.reshape(np.loadtxt('ref.txt') , gridDims))
+    ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), gridDims))
 
     ncols = 4
     nrows = 17
@@ -516,7 +516,7 @@ def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, c
 
     HD_pyrUpdated_beforeDS = np.ma.array (maskMatrix, mask=np.isnan(maskMatrix))
     cmap = plt.cm.rainbow
-    cmap.set_bad('white',1.)
+    cmap.set_bad('white', 1.)
 
     fig, axs = plt.subplots(5, 1, figsize=(7, 5.5))
     fig.subplots_adjust(hspace=0.6)
@@ -632,9 +632,9 @@ def meanMaps_vs_ref(gridDim_x, gridDim_y):
         
         # Load data
         if i == 0:
-            mpSimEnsMean = np.flipud(np.reshape(np.mean(np.loadtxt('iniMPSimEns.txt'), axis=1), (gridDim_y,gridDim_x)))
+            mpSimEnsMean = np.flipud(np.reshape(np.mean(np.loadtxt('iniMPSimEns.txt'), axis=1), (gridDim_y, gridDim_x)))
         else:
-            mpSimEnsMean = np.flipud(np.reshape(np.mean(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt'), axis=1), (gridDim_y,gridDim_x)))
+            mpSimEnsMean = np.flipud(np.reshape(np.mean(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt'), axis=1), (gridDim_y, gridDim_x)))
 
         axs[j].tick_params(axis='x', labelsize=10)
         axs[j].tick_params(axis='y', labelsize=10)
@@ -684,7 +684,7 @@ def meanVarianceReduction(ensembleSize, criticalLength, lastIt):
 
     nbOfElements = 25000
     parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :], (nbOfElements, ensembleSize))
-    ensVar_ini = np.reshape(np.sum((parEns_ini - np.reshape(np.dot(parEns_ini, np.ones((ensembleSize,ensembleSize))/ensembleSize), (nbOfElements, ensembleSize)))**2, axis=1)/ensembleSize, (50, 500))
+    ensVar_ini = np.reshape(np.sum((parEns_ini - np.reshape(np.dot(parEns_ini, np.ones((ensembleSize, ensembleSize))/ensembleSize), (nbOfElements, ensembleSize)))**2, axis=1)/ensembleSize, (50, 500))
     meanEnsVar_ini = np.mean(ensVar_ini[:, 0:criticalLength])
     
     meanEnsVarWithIterations = []
@@ -705,8 +705,8 @@ def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt):
     ref_indic_f2 = np.zeros(ref.shape)
     ref_indic_f1[np.where(ref == 0)[0], np.where(ref == 0)[1]] = 1
     ref_indic_f2[np.where(ref == 1)[0], np.where(ref == 1)[1]] = 1
-    ref_indic_f1_vector = np.reshape(np.mean(ref_indic_f1, axis=1), (-1,1)) 
-    ref_indic_f2_vector = np.reshape(np.mean(ref_indic_f2, axis=1), (-1,1))
+    ref_indic_f1_vector = np.reshape(np.mean(ref_indic_f1, axis=1), (-1, 1)) 
+    ref_indic_f2_vector = np.reshape(np.mean(ref_indic_f2, axis=1), (-1, 1))
     
     relEntropy_list = []
     for i in np.arange(0, lastIt+1):
@@ -762,8 +762,8 @@ def shannonEntropy(ensembleSize, criticalLength, iteration):
         propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), (50, 500))
         propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), (50, 500))
 
-        propMap_f1_vector = np.reshape(propMap_f1, (-1,1))
-        propMap_f2_vector = np.reshape(propMap_f2, (-1,1))
+        propMap_f1_vector = np.reshape(propMap_f1, (-1, 1))
+        propMap_f2_vector = np.reshape(propMap_f2, (-1, 1))
 
         entropy_vector = np.zeros((25000, 1))
         for i in np.arange(0, 25000):
