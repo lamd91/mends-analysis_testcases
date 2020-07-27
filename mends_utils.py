@@ -167,16 +167,16 @@ def showObs():
     k = 0
     for j in range(ncols):
         # Observed flow rates (Q) in red
-        axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
+        axarr[i, j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
                            edgecolors='none', label='obs', zorder=3) 
-        axarr[i,j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
-        axarr[i,j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
-        axarr[i,j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
-        axarr[i,j].xaxis.set_ticks(np.arange(0, 12000, 2000))
+        axarr[i, j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
+        axarr[i, j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
+        axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
+        axarr[i, j].xaxis.set_ticks(np.arange(0, 12000, 2000))
         axarr[i, j].set_xticklabels(['0', '2', '4', '6'])
-        axarr[i,j].set_xlim(0, 6000)
-        axarr[i,j].tick_params(labelsize=8)
-        handles, labels = axarr[i,j].get_legend_handles_labels()
+        axarr[i, j].set_xlim(0, 6000)
+        axarr[i, j].tick_params(labelsize=8)
+        handles, labels = axarr[i, j].get_legend_handles_labels()
         k += 1
 
     axarr[2,3].set_ylim(-0.001, 0.001)
@@ -290,26 +290,26 @@ def simDataEns(iteration, ensembleSize):
     k = 0
     for j in range(ncols):
         # Observed flow rates (Q) in red
-        axarr[i,j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
+        axarr[i, j].scatter(time, qObsByLoc[:, k], s=4, c='r', 
                            edgecolors='none', label='obs', zorder=3)
         # Simulated ensemble before data assimilation
-        axarr[i,j].plot(time, qSimEns_ini[
+        axarr[i, j].plot(time, qSimEns_ini[
                    obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
                    c=(0.7, 0.7, 0.7), linewidth=0.4, alpha=0.8, zorder=1, 
                    label='prior')
         # Simulated ensemble after data assimilation
-        axarr[i,j].plot(time, qSimEns_last[
+        axarr[i, j].plot(time, qSimEns_last[
                    obsIndexIntervalByLoc[k]:obsIndexIntervalByLoc[k+1], :], 
                    c='b', linewidth=0.4, alpha=0.8, zorder=2, 
                    label=f'iter {iteration}') 
-        axarr[i,j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
-        axarr[i,j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
-        axarr[i,j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
-        axarr[i,j].xaxis.set_ticks(np.arange(0, 12000, 2000))
+        axarr[i, j].set_title(listOfFlowrateObsLocations[k], fontsize=9)
+        axarr[i, j].set_ylim(0, np.max(qObsByLoc[:, k])*1.1)
+        axarr[i, j].set_xlabel('Time (' + r'$10^3$' + ' s)', fontsize=9)
+        axarr[i, j].xaxis.set_ticks(np.arange(0, 12000, 2000))
         axarr[i, j].set_xticklabels(['0', '2', '4', '6'])
-        axarr[i,j].set_xlim(0, 6000)
-        axarr[i,j].tick_params(labelsize=8)
-        handles, labels = axarr[i,j].get_legend_handles_labels()
+        axarr[i, j].set_xlim(0, 6000)
+        axarr[i, j].tick_params(labelsize=8)
+        handles, labels = axarr[i, j].get_legend_handles_labels()
         k += 1
 
     axarr[2,3].set_ylim(-0.001, 0.001)
@@ -422,7 +422,7 @@ def conditionedCategoricalFields_4members(realizationRank_member1,
         # For each iteration
         j=0
         cmap = plt.cm.rainbow
-        norm = matplotlib.colors.BoundaryNorm(np.arange(-0.5,2,1), cmap.N)
+        norm = matplotlib.colors.BoundaryNorm(np.arange(-0.5, 2, 1), cmap.N)
 
         start_index = 0
         end_index = 1
@@ -545,11 +545,13 @@ def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, c
     cax3 = divider3.append_axes("right", size="3%", pad=0.2)
     cax4 = divider4.append_axes("right", size="3%", pad=0.2)
     cax5 = divider5.append_axes("right", size="3%", pad=0.2)
-    cbar1 = plt.colorbar(im1_r, cax=cax1) # match colorbar with grid size
-    cbar2 = plt.colorbar(im2_r, cax=cax2) # match colorbar with grid size
-    cbar3 = plt.colorbar(im2_r, cax=cax3) # match colorbar with grid size
-    cbar4 = plt.colorbar(im2_r, cax=cax4) # match colorbar with grid size
-    cbar5 = plt.colorbar(im5, cax=cax5, ticks=np.arange(0, 2, 1)) # match colorbar with grid size
+    
+    # Match colorbar with grid size
+    cbar = plt.colorbar(im1_r, cax=cax1) 
+    cbar2 = plt.colorbar(im2_r, cax=cax2)
+    cbar3 = plt.colorbar(im2_r, cax=cax3) 
+    cbar4 = plt.colorbar(im2_r, cax=cax4) 
+    cbar5 = plt.colorbar(im5, cax=cax5, ticks=np.arange(0, 2, 1))
 
     # Set x and y ticks in meters
     fig.canvas.draw()
@@ -563,7 +565,6 @@ def updatedCoarseVar_multiresoMPS(iteration, realizationRank, coarseGridDim_y, c
         axs[i].set_yticklabels(ylabels)
     axs[4].set_xticks([0, 99, 199, 299, 399, 499]) 
     axs[4].set_yticks([0, 24, 49])
-#   locs, labels = axs[4].get_xticks() # get xticks from 50x500 simulation grid
     xlabels = [item.get_text() for item in axs[4].get_xticklabels()]
     ylabels = [item.get_text() for item in axs[4].get_yticklabels()]
     xlabels[0] = '0'
@@ -702,22 +703,22 @@ def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt):
     ref = np.reshape(np.loadtxt('rejectionSampling_posteriorDist.txt'), (25000,-1))
     ref_indic_f1 = np.zeros(ref.shape)
     ref_indic_f2 = np.zeros(ref.shape)
-    ref_indic_f1[np.where(ref==0)[0], np.where(ref==0)[1]] = 1
-    ref_indic_f2[np.where(ref==1)[0], np.where(ref==1)[1]] = 1
+    ref_indic_f1[np.where(ref == 0)[0], np.where(ref == 0)[1]] = 1
+    ref_indic_f2[np.where(ref == 1)[0], np.where(ref == 1)[1]] = 1
     ref_indic_f1_vector = np.reshape(np.mean(ref_indic_f1, axis=1), (-1,1)) 
     ref_indic_f2_vector = np.reshape(np.mean(ref_indic_f2, axis=1), (-1,1))
     
     relEntropy_list = []
     for i in np.arange(0, lastIt+1):
-        if i==0:
+        if i == 0:
             faciesEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
         else:
             faciesEns_ini = np.reshape(np.loadtxt('ens_of_MPSim_' + str(i) + '.txt'), (-1, ensembleSize))
 
         indicEns_f1 = np.zeros(faciesEns_ini.shape)
         indicEns_f2 = np.zeros(faciesEns_ini.shape)
-        indicEns_f1[np.where(faciesEns_ini==0)[0], np.where(faciesEns_ini==0)[1]] = 1
-        indicEns_f2[np.where(faciesEns_ini==1)[0], np.where(faciesEns_ini==1)[1]] = 1
+        indicEns_f1[np.where(faciesEns_ini == 0)[0], np.where(faciesEns_ini == 0)[1]] = 1
+        indicEns_f2[np.where(faciesEns_ini == 1)[0], np.where(faciesEns_ini == 1)[1]] = 1
         propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), (50, 500))
         propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), (50, 500))
 
@@ -726,12 +727,12 @@ def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt):
 
         relEntropy_vector = np.zeros((25000, 1))
         for i in np.arange(0, 50*500):      
-            if propMap_f1_vector[i] == 0 or ref_indic_f1_vector[i]==0:
+            if propMap_f1_vector[i] == 0 or ref_indic_f1_vector[i] == 0:
                 relEntropy_t1 = 0
             else:
                 relEntropy_t1 = ref_indic_f1_vector[i]*np.log2(ref_indic_f1_vector[i]/propMap_f1_vector[i])         
 
-            if propMap_f2_vector[i] == 0 or ref_indic_f2_vector[i]==0:
+            if propMap_f2_vector[i] == 0 or ref_indic_f2_vector[i] == 0:
                 relEntropy_t2 = 0
             else:
                 relEntropy_t2 = ref_indic_f2_vector[i]*np.log2(ref_indic_f2_vector[i]/propMap_f2_vector[i]) 
@@ -749,15 +750,15 @@ def shannonEntropy(ensembleSize, criticalLength, iteration):
     entropy_list = []
     lastIt = int(iteration)
     for i in np.arange(0, lastIt+1):
-        if i==0:
+        if i == 0:
             faciesEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
         else:
             faciesEns_ini = np.reshape(np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
 
         indicEns_f1 = np.zeros(faciesEns_ini.shape)
         indicEns_f2 = np.zeros(faciesEns_ini.shape)
-        indicEns_f1[np.where(faciesEns_ini==0)[0], np.where(faciesEns_ini==0)[1]] = 1
-        indicEns_f2[np.where(faciesEns_ini==1)[0], np.where(faciesEns_ini==1)[1]] = 1
+        indicEns_f1[np.where(faciesEns_ini == 0)[0], np.where(faciesEns_ini == 0)[1]] = 1
+        indicEns_f2[np.where(faciesEns_ini == 1)[0], np.where(faciesEns_ini == 1)[1]] = 1
         propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), (50, 500))
         propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), (50, 500))
 
@@ -773,7 +774,7 @@ def shannonEntropy(ensembleSize, criticalLength, iteration):
                 entropy_t1 = -propMap_f1_vector[i]*np.log2(propMap_f1_vector[i])            
 
             if propMap_f2_vector[i] == 0:
-                entropy_t2 =    0
+                entropy_t2 = 0
             else:
                 entropy_t2 = -propMap_f2_vector[i]*np.log2(propMap_f2_vector[i]) 
 
