@@ -822,7 +822,10 @@ def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
             
             # Add contribution of facies to the overall entropy for every 
             # pixel of the entropy map
-            entropyMap[np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]] -= np.multiply(probaMap[np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]], np.log2(probaMap[np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]]))
+            whereNotNull_i, whereNotNull_j = [np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]] 
+            entropyMap[whereNotNull_i, whereNotNull_j] -= np.multiply(
+                        probaMap[whereNotNull_i, whereNotNull_j], 
+                        np.log2(probaMap[whereNotNull_i, whereNotNull_j]))
                     
         # Calculate average entropy value over pixels of the updated region
         avgEntropy = np.mean(entropyMap[:, 0:criticalLength])
