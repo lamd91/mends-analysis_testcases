@@ -721,62 +721,80 @@ def meanVarianceReduction(ensembleSize, criticalLength, lastIt, gridDims):
     return meanEnsVarWithIterations
 
 
-def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt, gridDims):
+def KLdiv(ensembleSize, criticalLength, lastIt, gridDims):
+    """
+    Calculate the Kullback-Leibler divergence (or the "relative entropy")
+    of the reference distribution obtained by rejection sampling and the 
+    ensemble updated by data assimilation (DA) at each iteration
 
-    ref = np.reshape(np.loadtxt('rejectionSampling_posteriorDist.txt'), 
-                     (gridDims[0]*gridDims[1], -1))
-    ref_indic_f1 = np.zeros(ref.shape)
-    ref_indic_f2 = np.zeros(ref.shape)
-    ref_indic_f1[np.where(ref == 0)[0], np.where(ref == 0)[1]] = 1
-    ref_indic_f2[np.where(ref == 1)[0], np.where(ref == 1)[1]] = 1
-    ref_indic_f1_vector = np.reshape(np.mean(ref_indic_f1, axis=1), (-1, 1)) 
-    ref_indic_f2_vector = np.reshape(np.mean(ref_indic_f2, axis=1), (-1, 1))
-    
-    relativeEntropies = []
-    for i in np.arange(0, lastIt+1):
+    Arguments:
+    ensembleSize -- An integer denoting the ensemble size
+    criticalLength -- An integer corresponding to the critical length in 
+            pixels used to localize the update
+    lastIt -- An integer representing the last iteration for which the 
+            entropy is calculated
+    grimDims -- A tuple of integers corresponding to the width and height of
+            the categorical fields in pixels
+
+    Return:
+    KLdivs -- A list of KL divergence values
+    """
+    # Initialize list of KL divergence values (average over updated region)
+    KLdivs = []
+
+    # Load reference ensemble of facies fields obtained by rejection sampling
+    # This ensemble may contain more members than the ensemble updated by DA
+    refDist = np.reshape(np.loadtxt('rejectionSampling_posteriorDist.txt'),
+                        (gridDims[0]*gridDims[1], -1)) 
+    # Extract the facies values 
+    allFacies = np.unique(refDist)
+ 
+    # For each iteration 
+    for i in range(lastIt+1):
+        # Load corresponding updated ensemble of facies fields 
         if i == 0:
-            faciesEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
+            estDist = np.reshape(
+                    np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
         else:
-            faciesEns_ini = np.reshape(np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
+            estDist = np.reshape(
+                    np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
 
-        indicEns_f1 = np.zeros(faciesEns_ini.shape)
-        indicEns_f2 = np.zeros(faciesEns_ini.shape)
-        indicEns_f1[
-                    np.where(faciesEns_ini == 0)[0],
-                    np.where(faciesEns_ini == 0)[1]] = 1
-        indicEns_f2[
-                    np.where(faciesEns_ini == 1)[0], 
-                    np.where(faciesEns_ini == 1)[1]] = 1
-        propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), gridDims)
-        propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), gridDims)
+        # Initialize array representing a map of KL divergence values
+        KLdivMap = np.zeros(gridDims)
 
-        propMap_f1_vector = np.reshape(propMap_f1, (-1, 1))
-        propMap_f2_vector = np.reshape(propMap_f2, (-1, 1))
-
-        relEntropy_vector = np.zeros((gridDims[0]*gridDims[1], 1))
-        for i in np.arange(0, gridDims[0]*gridDims[1]):      
-            if propMap_f1_vector[i] == 0 or ref_indic_f1_vector[i] == 0:
-                relEntropy_t1 = 0
-            else:
-                relEntropy_t1 = ref_indic_f1_vector[i] * \
-                                np.log2(ref_indic_f1_vector[i] \
-                                / propMap_f1_vector[i])         
-
-            if propMap_f2_vector[i] == 0 or ref_indic_f2_vector[i] == 0:
-                relEntropy_t2 = 0
-            else:
-                relEntropy_t2 = ref_indic_f2_vector[i] * \
-                                np.log2(ref_indic_f2_vector[i] \
-                                / propMap_f2_vector[i]) \
+        # For each facies        
+        for facies in allFacies:
+            # Create ensemble of indicator values associated to the facies
+            # for the ensemble updated by data assimilation
+            faciesIndic_est = np.zeros(estDist.shape)
+            faciesIndic_est[np.where(estDist == facies)[0],
+                            np.where(estDist == facies)[1]] = 1
+            # for the reference ensemble 
+            faciesIndic_ref = np.zeros(refDist.shape)
+            faciesIndic_ref[np.where(refDist == facies)[0],
+                            np.where(refDist == facies)[1]] = 1
         
-            relEntropy_vector[i] = relEntropy_t1 + relEntropy_t2
+            # Calculate facies probability (proportion) map 
+            # from the estimated and the reference distributions
+            probaMap_est = np.reshape(np.mean(faciesIndic_est, axis=1), gridDims)
+            probaMap_ref = np.reshape(np.mean(faciesIndic_ref, axis=1), gridDims)
             
-        relEntropy = np.mean(
-                relEntropy_vector.reshape(
-                            gridDims[0], gridDims[1])[:, 0:criticalLength])
-        relativeEntropies.append(relEntropy)
-
-    return relativeEntropies
+            # Add contribution of facies to the overall relative entropy for
+            # every pixel of the entropy map
+            whereNotNull_i, whereNotNull_j = [
+                        np.where((probaMap_est > 0) & (probaMap_ref > 0))[0], 
+                        np.where((probaMap_est > 0) & (probaMap_ref > 0))[1]]
+            KLdivMap[whereNotNull_i, whereNotNull_j] += np.multiply(
+                        probaMap_ref[whereNotNull_i, whereNotNull_j], 
+                        np.log2(np.divide(
+                             probaMap_ref[whereNotNull_i, whereNotNull_j],
+                             probaMap_est[whereNotNull_i, whereNotNull_j])))
+                    
+        # Calculate average KL divergence value over the updated region
+        avgKLdiv = np.mean(KLdivMap[:, 0:criticalLength])
+        KLdivs.append(avgKLdiv)
+        
+    return KLdivs
 
 
 def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
@@ -796,21 +814,26 @@ def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
     Return:
     entropies -- A list of Shannon entropy values
     """
+    # Initialize list of entropy values (average over updated region)
+    entropies = []
+
+    # For each iteration
     for i in range(lastIt+1):
+
+        # Initialize array representing a map of entropy values
+        entropyMap = np.zeros(gridDims)
+
+        # Load corresponding file with ensemble of fields
         if i == 0:
             faciesEns_ini = np.reshape(
                     np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
-            # Determine the facies values 
+            # Extract the facies values 
             allFacies = np.unique(faciesEns_ini)
         else:
             faciesEns_ini = np.reshape(
                     np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
-
-        # Initialize array representing a map of entropy values
-        entropyMap = np.zeros(gridDims)
-        # Initialize list of entropy value per iteration (average value over the updated region)
-        entropies = []
         
+        # For each facies 
         for facies in allFacies:
             # Create ensemble of indicator values associated to the facies
             faciesIndicEns = np.zeros(faciesEns_ini.shape)
@@ -821,7 +844,8 @@ def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
             
             # Add contribution of facies to the overall entropy for every 
             # pixel of the entropy map
-            whereNotNull_i, whereNotNull_j = [np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]] 
+            whereNotNull_i, whereNotNull_j = [
+                        np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]] 
             entropyMap[whereNotNull_i, whereNotNull_j] -= np.multiply(
                         probaMap[whereNotNull_i, whereNotNull_j], 
                         np.log2(probaMap[whereNotNull_i, whereNotNull_j]))
