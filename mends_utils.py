@@ -123,7 +123,7 @@ def showObs():
                               'Obs. point #10\nx=1km, z=450m']
 
     # Load array of observation by location
-    timeObs = np.arange(0, 43200+1200, 1200) # includes time zero which corresponds to the initial head computed from the steady-state simulation
+    timeObs = np.arange(0, 43200+1200, 1200)  # includes time zero which corresponds to the initial head computed from the steady-state simulation
     headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
     
     nrows = 3
@@ -779,52 +779,55 @@ def relativeEntropy_trueDist(ensembleSize, criticalLength, lastIt, gridDims):
     return relativeEntropies
 
 
-def shannonEntropy(ensembleSize, criticalLength, iteration, gridDims):
+def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
+    """
+    Calculate the Shannon entropy of the estimated categorical ensemble at
+    each iteration
 
+    Arguments:
+    ensembleSize -- An integer denoting the ensemble size
+    criticalLength -- An integer corresponding to the critical length in 
+            pixels used to localize the update
+    lastIt -- An integer representing the last iteration for which the 
+            entropy is calculated
+    grimDims -- A tuple of integers corresponding to the width and height of
+            the categorical fields in pixels
+
+    Return:
+    entropies -- A list of Shannon entropy values
+    """
     entropies = []
-    lastIt = int(iteration)
     nbOfElements = gridDims[0] * gridDims[1]
 
-    for i in np.arange(0, lastIt+1):
+    for i in range(lastIt+1):
         if i == 0:
             faciesEns_ini = np.reshape(
                     np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
+            # Determine the facies values 
+            allFacies = np.unique(faciesEns_ini)
         else:
             faciesEns_ini = np.reshape(
                     np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
 
-        indicEns_f1 = np.zeros(faciesEns_ini.shape)
-        indicEns_f2 = np.zeros(faciesEns_ini.shape)
-        indicEns_f1[
-                np.where(faciesEns_ini == 0)[0], 
-                np.where(faciesEns_ini == 0)[1]] = 1
-        indicEns_f2[
-                np.where(faciesEns_ini == 1)[0], 
-                np.where(faciesEns_ini == 1)[1]] = 1
-        propMap_f1 = np.reshape(np.mean(indicEns_f1, axis=1), gridDims)
-        propMap_f2 = np.reshape(np.mean(indicEns_f2, axis=1), gridDims)
-
-        propMap_f1_vector = np.reshape(propMap_f1, (-1, 1))
-        propMap_f2_vector = np.reshape(propMap_f2, (-1, 1))
-
-        entropy_vector = np.zeros((nbOfElements, 1))
-        for i in np.arange(0, nbOfElements):
-            
-            if propMap_f1_vector[i] == 0:
-                entropy_t1 = 0
-            else:
-                entropy_t1 = -propMap_f1_vector[i]*np.log2(propMap_f1_vector[i])            
-
-            if propMap_f2_vector[i] == 0:
-                entropy_t2 = 0
-            else:
-                entropy_t2 = -propMap_f2_vector[i]*np.log2(propMap_f2_vector[i]) 
-
-            entropy_vector[i] = entropy_t1 + entropy_t2 
-            
-        entropy = np.mean(entropy_vector.reshape(gridDims)[:, 0:criticalLength])
-        entropies.append(entropy)
+        # Initialize array representing a map of entropy values
+        entropyMap = np.zeros(gridDims)
         
+        for facies in allFacies:
+            # Create ensemble of indicator values associated to the facies
+            faciesIndicEns = np.zeros(faciesEns_ini.shape)
+            faciesIndicEns[np.where(faciesEns_ini == facies)[0],
+                           np.where(faciesEns_ini == facies)[1]] = 1
+            # Calculate facies probability (proportion) map
+            probaMap = np.reshape(np.mean(faciesIndicEns, axis=1), gridDims)
+            
+            # Add contribution of facies to the overall entropy for every 
+            # pixel of the entropy map
+            entropyMap[np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]] -= np.multiply(probaMap[np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]], np.log2(probaMap[np.where(probaMap > 0)[0], np.where(probaMap > 0)[1]]))
+                    
+        # Calculate average entropy value over pixels of the updated region
+        avgEntropy = np.mean(entropyMap[:, 0:criticalLength])
+        entropies.append(avgEntropy)
+          
     return entropies
 
 
@@ -851,7 +854,6 @@ def ensembleOfConnectFunc(ensSize, it, fineGridDim_x, fineGridDim_y, axis, categ
         before (connectFunEns_ini) and after the data assimilation
        (connectFunEns_fin)
     """
-    colors=pl.cm.Blues(np.linspace(0.2, 0.8, 2))
     
     # If connectivity is calculated in the horizontal direction
     if axis == 1:
