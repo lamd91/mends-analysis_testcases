@@ -796,9 +796,6 @@ def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
     Return:
     entropies -- A list of Shannon entropy values
     """
-    entropies = []
-    nbOfElements = gridDims[0] * gridDims[1]
-
     for i in range(lastIt+1):
         if i == 0:
             faciesEns_ini = np.reshape(
@@ -811,6 +808,8 @@ def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
 
         # Initialize array representing a map of entropy values
         entropyMap = np.zeros(gridDims)
+        # Initialize list of entropy value per iteration (average value over the updated region)
+        entropies = []
         
         for facies in allFacies:
             # Create ensemble of indicator values associated to the facies
