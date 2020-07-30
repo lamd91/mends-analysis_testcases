@@ -668,27 +668,38 @@ def rmse(ensembleSize, criticalLength, lastIt, gridDims):
     return rmseWithIterations
 
 
-def meanMaps_vs_ref(gridDim_x, gridDim_y):
+def meanMaps_vs_ref(gridDims, iterations, figsize=(7,7)):
     """
+    Plot probability maps of the channel facies before and after the data
+    assimilation at specified iterations and show the reference field
+    at the bottom
+
+    Arguments:
+    gridDims -- A tuple of integers for the dimensions of the finest 
+                simulation grid
+    iterations -- A list of integers denoting the iterations for which
+                  to compute the updated probability maps
+    figize -- A tuple of values to specify the size of the figure
+              depending on the number of maps shown
     """
     # Make figure
-    fig, axs = plt.subplots(8, 1, figsize=(7, 7), sharex=True)
+    fig, axs = plt.subplots(8, 1, figsize=figsize, sharex=True)
     axs.ravel()
 
     # For each iteration
     j=0
-    for i in np.array([0, 1, 2, 3, 4, 8, 16]):
+    for i in [0] + iterations:
     #for i in np.arange(0, iteration+1, 2):
         
         # Load data
         if i == 0:
             mpSimEnsMean = np.flipud(
                     np.reshape(np.mean(np.loadtxt('iniMPSimEns.txt'), axis=1),
-                               (gridDim_y, gridDim_x)))
+                               gridDims))
         else:
             mpSimEnsMean = np.flipud(
                     np.reshape(np.mean(np.loadtxt(f'ens_of_MPSim_{i}.txt'), axis=1),
-                               (gridDim_y, gridDim_x)))
+                               gridDims))
 
         axs[j].tick_params(axis='x', labelsize=10)
         axs[j].tick_params(axis='y', labelsize=10)
@@ -702,7 +713,7 @@ def meanMaps_vs_ref(gridDim_x, gridDim_y):
         axs[j].set_yticklabels(ylabels)
         j=j+1   
 
-    ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), (gridDim_y, gridDim_x)))
+    ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), gridDims))
     axs[-1].imshow(ref, cmap='rainbow', vmin=0, vmax=1, aspect='auto')
     axs[-1].set_xticks([0, 99, 199, 299, 399, 499])
     axs[-1].set_yticks([0, 24, 49])
@@ -730,7 +741,6 @@ def meanMaps_vs_ref(gridDim_x, gridDim_y):
     fig.text(0.5, 0.04, 'Distance to western boundary (m)', ha='center', fontsize=10)
 
     #plt.savefig('meanMapB_paramNearObs.png', bbox_inches="tight", dpi=300)
-    #plt.savefig('meanMapB_paramNearObs.eps')
 
     return
 
