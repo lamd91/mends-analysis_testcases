@@ -397,103 +397,6 @@ def simHead_rejectionSamplingPosterior():
     return
 
 
-def conditionedCategoricalFields_4members(
-        rank_member1, rank_member2, rank_member3, rank_member4, gridDims):
-    """
-    Plot categorical fields generated throughout the data assimilation 
-    procedure (see the specified iterations in for loop) 
-    for 4 different ensemble members
-
-    Arguments:
-    rank_member[1-4] -- Each argument is a scalar denoting the index of an 
-                        ensemble member
-    gridDims -- A tuple denoting the dimensions of the 2D grid
-    """
-    ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), gridDims))
-
-    ncols = 4
-    nrows = 17
-    grid = GridSpec(nrows, ncols, wspace=0.3, hspace=0.1)
-    fig = plt.figure(figsize=(7, 8))
-    fig.clf()
-
-    k = 0
-    for rank in [rank_member1, rank_member2]:    
-
-        # For each iteration
-        j=0
-        cmap = plt.cm.rainbow
-        norm = matplotlib.colors.BoundaryNorm(np.arange(-0.5, 2, 1), cmap.N)
-
-        start_index = 0
-        end_index = 1
-
-        # Show generated categorical fields at iteration 1, 2, 3, 4, 8, 12, 16
-        for i in [1, 2, 3, 4, 8, 12, 16]:
-            ax = fig.add_subplot(grid[start_index:end_index, k:k+2])    
-
-            # Load data
-            if i == 0:
-                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
-                                             [:, rank], gridDims))
-            else:
-                mpSim = np.flipud(np.reshape(np.loadtxt(
-                      f'ens_of_MPSim_{i}.txt')[:, rank], gridDims))
-
-            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, 
-                           aspect='auto')
-        
-            ax.get_xaxis().set_visible(False)  # Hide axis
-            ax.axes.get_yaxis().set_visible(False)
-            
-            start_index = start_index+1
-            end_index = end_index+1
-
-        k = k+2
-
-    k = 0
-    for rank in [rank_member3, rank_member4]:    
-
-        # For each iteration
-        j=0
-        cmap = plt.cm.rainbow
-        norm = matplotlib.colors.BoundaryNorm(np.arange(-0.5, 2, 1), cmap.N)
-
-        start_index = 8
-        end_index = start_index + 1
-
-        # Show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
-        for i in [1, 2, 3, 4, 8, 12, 16]:
-            ax = fig.add_subplot(grid[start_index:end_index, k:k+2])    
-
-            # Load data
-            if i == 0:
-                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
-                                             [:, rank], gridDims))
-            else:
-                mpSim = np.flipud(np.reshape(np.loadtxt(
-                      f'ens_of_MPSim_{i}.txt')[:, rank], gridDims))
-
-            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1,
-                           aspect='auto')
-        
-            ax.get_xaxis().set_visible(False)  # Hide axis
-            ax.axes.get_yaxis().set_visible(False)
-            
-            start_index = start_index+1
-            end_index = end_index+1
-
-        k = k+2
-
-    ax = fig.add_subplot(grid[16, 1:3])
-    im = ax.imshow(ref, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
-
-    ax.get_xaxis().set_visible(False)  # Hide axis
-    ax.axes.get_yaxis().set_visible(False)
-
-    return
-
-
 def updatedCoarseVar_multiresoMPS(
                 iteration, memberRank, coarseGridDims, fineGridDims):
     """
@@ -633,35 +536,101 @@ def updatedCoarseVar_multiresoMPS(
     return
 
 
-def rmse(ensembleSize, criticalLength, lastIt, gridDims):
+def conditionedCategoricalFields_4members(
+        rank_member1, rank_member2, rank_member3, rank_member4, gridDims):
     """
-    Compute at each iteration the RMSE between the ensemble mean estimate and the reference value averaged over all pixels of the field.
+    Plot categorical fields generated throughout the data assimilation 
+    procedure (see the specified iterations in for loop) 
+    for 4 different ensemble members
 
     Arguments:
-    ensembleSize -- A scalar denoting the size of the ensemble
-    criticalLength -- A scalar denoting the length in gridblocks used to localize the update during the assimilation
-    lastIt -- A scalar indicating the last update iteration for which to compute the RMSE
+    rank_member[1-4] -- Each argument is a scalar denoting the index of an 
+                        ensemble member
     gridDims -- A tuple denoting the dimensions of the 2D grid
-    
-    Return:
-    rmseWithIterations -- A list of floats corresponding to the RMSE value from iteration 0 (before any update) up to lastIt
     """
-    ref = np.reshape(np.loadtxt('ref.txt'), gridDims)[:, 0:criticalLength]           
+    ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), gridDims))
 
-    nbOfElements = gridDims[0]*gridDims[1] 
-    parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :], (nbOfElements, ensembleSize))
-    ensMean_ini = np.reshape(np.dot(parEns_ini, np.ones((ensembleSize, 1))/ensembleSize), gridDims)[:,0:criticalLength]
-    rmse_ini = np.sqrt(np.sum((ref-ensMean_ini)**2)/(gridDims[0]*criticalLength))
+    ncols = 4
+    nrows = 17
+    grid = GridSpec(nrows, ncols, wspace=0.3, hspace=0.1)
+    fig = plt.figure(figsize=(7, 8))
+    fig.clf()
 
-    rmseWithIterations = []
-    rmseWithIterations.append(rmse_ini)
-    for i in np.arange(1, lastIt+1):
-        parEns_calib = np.reshape(np.loadtxt(f'ens_of_MPSim_{i}.txt')[0:nbOfElements, :], (nbOfElements, ensembleSize))
-        ensMean_calib = np.reshape(np.dot(parEns_calib, np.ones((ensembleSize, 1))/ensembleSize), gridDims)[:, 0:criticalLength]
-        rmse_fin = np.sqrt(np.sum((ref-ensMean_calib)**2)/(gridDims[0]*criticalLength))
-        rmseWithIterations.append(rmse_fin)
+    k = 0
+    for rank in [rank_member1, rank_member2]:    
 
-    return rmseWithIterations
+        # For each iteration
+        j=0
+        cmap = plt.cm.rainbow
+        norm = matplotlib.colors.BoundaryNorm(np.arange(-0.5, 2, 1), cmap.N)
+
+        start_index = 0
+        end_index = 1
+
+        # Show generated categorical fields at iteration 1, 2, 3, 4, 8, 12, 16
+        for i in [1, 2, 3, 4, 8, 12, 16]:
+            ax = fig.add_subplot(grid[start_index:end_index, k:k+2])    
+
+            # Load data
+            if i == 0:
+                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
+                                             [:, rank], gridDims))
+            else:
+                mpSim = np.flipud(np.reshape(np.loadtxt(
+                      f'ens_of_MPSim_{i}.txt')[:, rank], gridDims))
+
+            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, 
+                           aspect='auto')
+        
+            ax.get_xaxis().set_visible(False)  # Hide axis
+            ax.axes.get_yaxis().set_visible(False)
+            
+            start_index = start_index+1
+            end_index = end_index+1
+
+        k = k+2
+
+    k = 0
+    for rank in [rank_member3, rank_member4]:    
+
+        # For each iteration
+        j=0
+        cmap = plt.cm.rainbow
+        norm = matplotlib.colors.BoundaryNorm(np.arange(-0.5, 2, 1), cmap.N)
+
+        start_index = 8
+        end_index = start_index + 1
+
+        # Show generated categorical fields at iterations 1, 2, 3, 4, 8, 12, 16
+        for i in [1, 2, 3, 4, 8, 12, 16]:
+            ax = fig.add_subplot(grid[start_index:end_index, k:k+2])    
+
+            # Load data
+            if i == 0:
+                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
+                                             [:, rank], gridDims))
+            else:
+                mpSim = np.flipud(np.reshape(np.loadtxt(
+                      f'ens_of_MPSim_{i}.txt')[:, rank], gridDims))
+
+            im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1,
+                           aspect='auto')
+        
+            ax.get_xaxis().set_visible(False)  # Hide axis
+            ax.axes.get_yaxis().set_visible(False)
+            
+            start_index = start_index+1
+            end_index = end_index+1
+
+        k = k+2
+
+    ax = fig.add_subplot(grid[16, 1:3])
+    im = ax.imshow(ref, cmap=cmap, norm=norm, vmin=0, vmax=1, aspect='auto')
+
+    ax.get_xaxis().set_visible(False)  # Hide axis
+    ax.axes.get_yaxis().set_visible(False)
+
+    return
 
 
 def meanMaps_vs_ref(gridDims, iterations, figsize=(7,7)):
@@ -741,21 +710,81 @@ def meanMaps_vs_ref(gridDims, iterations, figsize=(7,7)):
     return
 
 
-def meanVarianceReduction(ensembleSize, criticalLength, lastIt, gridDims):
+def rmseWithIterations(ensembleSize, criticalLength, lastIt, gridDims):
+    """
+    Compute at each iteration the RMSE between the ensemble mean estimate and
+    the reference value averaged over the updated pixels of the field
 
+    Arguments:
+    ensembleSize -- A scalar denoting the size of the ensemble
+    criticalLength -- A scalar denoting the length in gridblocks used to 
+                      localize the update during the assimilation
+    lastIt -- A scalar indicating the last update iteration for which to 
+              compute the RMSE
+    gridDims -- A tuple denoting the dimensions of the 2D grid
+    
+    Return:
+    rmseWithIterations -- A list of RMSE values starting from before 
+                          any update up to iteration lastIt
+    """
+    ref = np.reshape(np.loadtxt('ref.txt'), gridDims)[:, 0:criticalLength]           
+
+    nbOfElements = gridDims[0]*gridDims[1] 
+    parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :], 
+                            (nbOfElements, ensembleSize))
+    ensMean_ini = np.reshape(np.dot(parEns_ini, 
+                                    np.ones((ensembleSize, 1))/ensembleSize),
+                             gridDims)[:,0:criticalLength]
+    rmse_ini = np.sqrt(np.sum((ref-ensMean_ini)**2)
+                       /(gridDims[0]*criticalLength))
+
+    rmseWithIterations = []
+    rmseWithIterations.append(rmse_ini)
+    for i in np.arange(1, lastIt+1):
+        parEns_calib = np.reshape(
+                np.loadtxt(f'ens_of_MPSim_{i}.txt')[0:nbOfElements, :], 
+                (nbOfElements, ensembleSize))
+        ensMean_calib = np.reshape(
+                np.dot(parEns_calib, np.ones((ensembleSize, 1))/ensembleSize), 
+                gridDims)[:, 0:criticalLength]
+        rmse_fin = np.sqrt(np.sum((ref-ensMean_calib)**2)
+                          /(gridDims[0]*criticalLength))
+        rmseWithIterations.append(rmse_fin)
+
+    return rmseWithIterations
+
+
+def varReduction(ensembleSize, criticalLength, lastIt, gridDims):
+    """
+    Compute at each iteration the variance of the estimated ensemble
+    averaged over the updated pixels of the field
+
+    Arguments:
+    ensembleSize -- A scalar denoting the size of the ensemble
+    criticalLength -- A scalar denoting the length in gridblocks used to 
+                      localize the update during the assimilation
+    lastIt -- A scalar indicating the last update iteration for which to 
+              compute the RMSE
+    gridDims -- A tuple denoting the dimensions of the 2D grid
+    
+    Return:
+    meanEnsVarReduction -- A list of mean variance values starting from before 
+                          any update up to iteration lastIt
+    """
     nbOfElements = gridDims[0]*gridDims[1]
     parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :],
                             (nbOfElements, ensembleSize))
     ensVar_ini = np.reshape(
-          np.sum((parEns_ini - 
-                 np.reshape(np.dot(parEns_ini, 
-                                   np.ones((ensembleSize, ensembleSize))/ensembleSize),
-                            (nbOfElements, ensembleSize))
-                  )**2, axis=1)/ensembleSize, gridDims)
+          np.sum((parEns_ini - np.reshape(
+                      np.dot(parEns_ini, np.ones((ensembleSize, ensembleSize))
+                             /ensembleSize),
+                                          (nbOfElements, ensembleSize))
+                  )**2, axis=1)
+                            /ensembleSize, gridDims)
     meanEnsVar_ini = np.mean(ensVar_ini[:, 0:criticalLength])
     
-    meanEnsVarWithIterations = []
-    meanEnsVarWithIterations.append(meanEnsVar_ini)
+    meanEnsVarReduction = []
+    meanEnsVarReduction.append(meanEnsVar_ini)
     for i in np.arange(1, lastIt+1):
         ens_K_calib = np.reshape(
                 np.loadtxt(f'ens_of_MPSim_{i}.txt')[0:nbOfElements, :],
@@ -766,9 +795,9 @@ def meanVarianceReduction(ensembleSize, criticalLength, lastIt, gridDims):
                      (nbOfElements, ensembleSize)))**2, axis=1)
               /ensembleSize, gridDims)
         meanEnsVar_fin = np.mean(ensVar_fin[:, 0:criticalLength])
-        meanEnsVarWithIterations.append(meanEnsVar_fin)
+        meanEnsVarReduction.append(meanEnsVar_fin)
     
-    return meanEnsVarWithIterations
+    return meanEnsVarReduction
 
 
 def KLdiv(ensembleSize, criticalLength, lastIt, gridDims):
