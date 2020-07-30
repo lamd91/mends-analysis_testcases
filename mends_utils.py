@@ -499,24 +499,45 @@ def conditionedCategoricalFields_4members(
 
 
 def updatedCoarseVar_multiresoMPS(
-                iteration, realizationRank, coarseGridDim_y, coarseGridDim_x,
-                fineGridDim_y, fineGridDim_x):
+                iteration, memberRank, coarseGridDims, fineGridDims):
     """
-    
+    Plot the different stages of the update process for one given iteration and
+    one given ensemble member
+
+    Arguments:
+    iteration -- An integer representing the iteration number 
+    memberRank -- An integer denoting the index of the member in the
+                  ensemble
+    coarseGridDims -- A tuple of integers composed of the width and height of
+            the MPS field simulated at the coarsest scale in pixels
+    fineGridDims -- A tuple of integers composed of the width and height of
+            the MPS field simulated at the finest scale in pixels   
     """
     beforeIteration = iteration - 1
-    par = np.reshape(np.loadtxt('ens_of_parameters_beforeUpdate_0.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x)) # not shown in figure
+    par = np.reshape(
+        np.loadtxt('ens_of_parameters_beforeUpdate_0.txt')[:, memberRank],
+        coarseGridDims)  # Not shown in figure
     parIni_min = np.min(par)
     parIni_max = np.max(par)
-    parUpdated = np.reshape(np.loadtxt('ens_of_parameters_' + str(beforeIteration)  + '.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x))
-    pyrUpdated_beforeDS = np.reshape(np.loadtxt('ens_of_updatedPyr_afterKalman_' + str(beforeIteration) + '.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x))
-    pyrUpdated_afterDS = np.reshape(np.loadtxt('ens_of_updatedPyr_afterKalman-DS_' + str(iteration) + '.txt')[:, realizationRank], (coarseGridDim_y, coarseGridDim_x))
-    condFaciesSim = np.reshape(np.loadtxt('ens_of_MPSim_' + str(iteration) + '.txt')[:, realizationRank], (fineGridDim_y, fineGridDim_x))
+    parUpdated = np.reshape(
+        np.loadtxt(f'ens_of_parameters_{beforeIteration}.txt')[:, memberRank],
+        coarseGridDims)
+    pyrUpdated_beforeDS = np.reshape(
+            np.loadtxt(f'ens_of_updatedPyr_afterKalman_{beforeIteration}.txt')
+                   [:, memberRank],
+            coarseGridDims)
+    pyrUpdated_afterDS = np.reshape(
+            np.loadtxt(f'ens_of_updatedPyr_afterKalman-DS_{iteration}.txt')
+                    [:, memberRank],
+            coarseGridDims)
+    condFaciesSim = np.reshape(
+            np.loadtxt(f'ens_of_MPSim_{iteration}.txt')[:, memberRank], 
+            fineGridDims)
 
     i_HD = np.loadtxt('sampledCells_xCoord.txt').astype(int)
     j_HD = np.loadtxt('sampledCells_yCoord.txt').astype(int)
 
-    maskMatrix = np.ones((coarseGridDim_y, coarseGridDim_x))
+    maskMatrix = np.ones(coarseGridDims)
     maskMatrix[:, :] = np.nan
     maskMatrix[i_HD, j_HD] = pyrUpdated_beforeDS[i_HD, j_HD]
 
@@ -527,20 +548,41 @@ def updatedCoarseVar_multiresoMPS(
     fig, axs = plt.subplots(5, 1, figsize=(7, 5.5))
     fig.subplots_adjust(hspace=0.6)
 
-    im1_r = axs[0].imshow(np.flipud(parUpdated), cmap='rainbow', aspect='auto', vmin=parIni_min, vmax=parIni_max)
-    im2_r = axs[1].imshow(np.flipud(pyrUpdated_beforeDS), cmap='rainbow', aspect='auto', vmin=0, vmax=1)
-    im1 = axs[0].imshow(np.flipud(parUpdated), cmap='rainbow_r', aspect='auto', vmin=parIni_min, vmax=parIni_max)
-    im2 = axs[1].imshow(np.flipud(pyrUpdated_beforeDS), cmap='rainbow_r', aspect='auto', vmin=0, vmax=1)
-    im3 = axs[2].imshow(np.flipud(HD_pyrUpdated_beforeDS), interpolation='nearest', cmap='rainbow_r', aspect='auto', vmin=0, vmax=1)
-    im4 = axs[3].imshow(np.flipud(pyrUpdated_afterDS), cmap='rainbow_r', aspect='auto', vmin=0, vmax=1)
-    cmap5 = plt.get_cmap('rainbow', np.max(condFaciesSim)-np.min(condFaciesSim)+1)# Get discrete colormap
-    im5 = axs[4].imshow(np.flipud(condFaciesSim), cmap=cmap5, aspect='auto', vmin=np.min(condFaciesSim)-0.5, vmax=np.max(condFaciesSim)+0.5)
+    im1_r = axs[0].imshow(np.flipud(parUpdated), cmap='rainbow', aspect='auto', 
+                          vmin=parIni_min, vmax=parIni_max)
+    im2_r = axs[1].imshow(np.flipud(pyrUpdated_beforeDS), cmap='rainbow', 
+                          aspect='auto', vmin=0, vmax=1)
+    im1 = axs[0].imshow(np.flipud(parUpdated), cmap='rainbow_r', aspect='auto', 
+                        vmin=parIni_min, vmax=parIni_max)
+    im2 = axs[1].imshow(np.flipud(pyrUpdated_beforeDS), cmap='rainbow_r', 
+                        aspect='auto', vmin=0, vmax=1)
+    im3 = axs[2].imshow(np.flipud(HD_pyrUpdated_beforeDS), 
+                        interpolation='nearest', cmap='rainbow_r', 
+                        aspect='auto', vmin=0, vmax=1)
+    im4 = axs[3].imshow(np.flipud(pyrUpdated_afterDS), cmap='rainbow_r', 
+                        aspect='auto', vmin=0, vmax=1)
+    # Get discrete colormap
+    cmap5 = plt.get_cmap('rainbow', 
+                         np.max(condFaciesSim)-np.min(condFaciesSim)+1) 
+    im5 = axs[4].imshow(np.flipud(condFaciesSim), cmap=cmap5, aspect='auto', 
+                        vmin=np.min(condFaciesSim)-0.5, 
+                        vmax=np.max(condFaciesSim)+0.5)
     
-    axs[0].set_title('Updated field - coarse scale  [size: ' + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
-    axs[1].set_title('Back-transformed field - coarse scale  [size: ' + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
-    axs[2].set_title('Samples of hard data - coarse scale  [size: ' + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
-    axs[3].set_title('MPS simulation - coarse scale  [size: ' + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
-    axs[4].set_title('MPS simulation - original scale  [size: ' + r'$50\times500$' + ' pixels]', loc='left', fontsize=9)
+    axs[0].set_title(
+        'Updated field - coarse scale  [size: '+r'$13\times125$'+' pixels]', 
+        loc='left', fontsize=9)
+    axs[1].set_title(
+        'Back-transformed field - coarse scale  [size: '
+        + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
+    axs[2].set_title(
+        'Samples of hard data - coarse scale  [size: '
+        + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
+    axs[3].set_title(
+        'MPS simulation - coarse scale  [size: ' 
+        + r'$13\times125$' + ' pixels]', loc='left', fontsize=9)
+    axs[4].set_title(
+        'MPS simulation - original scale  [size: '
+        + r'$50\times500$' + ' pixels]', loc='left', fontsize=9)
     divider1 = make_axes_locatable(axs[0])
     divider2 = make_axes_locatable(axs[1])
     divider3 = make_axes_locatable(axs[2])
@@ -587,8 +629,10 @@ def updatedCoarseVar_multiresoMPS(
     for i in np.arange(4):
         axs[i].set_xticks([], [])
 
-    fig.text(0.04, 0.5, 'Depth (m)', va='center', rotation='vertical', fontsize=9)
-    fig.text(0.5, 0.03, 'Distance to western boundary (m)', ha='center', fontsize=9)
+    fig.text(0.04, 0.5, 'Depth (m)', va='center', rotation='vertical', 
+             fontsize=9)
+    fig.text(0.5, 0.03, 'Distance to western boundary (m)', ha='center',
+             fontsize=9)
 
     return
 
@@ -733,7 +777,7 @@ def KLdiv(ensembleSize, criticalLength, lastIt, gridDims):
             pixels used to localize the update
     lastIt -- An integer representing the last iteration for which the 
             entropy is calculated
-    grimDims -- A tuple of integers corresponding to the width and height of
+    griidDims -- A tuple of integers corresponding to the width and height of
             the categorical fields in pixels
 
     Return:
