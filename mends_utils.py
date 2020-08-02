@@ -186,10 +186,6 @@ def showObs():
     axarr[2, 3].yaxis.set_ticks(np.array([0]))   
     axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
-#   figureName = f'HQ_priorPost_{iteration)_{ensembleSize}.png'
-#   plt.savefig(figureName, bbox_inches="tight", dpi=300)
-#   plt.show()
-
     return
 
 
