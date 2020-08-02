@@ -29,8 +29,12 @@ def dataMismatchWithIteration(ensembleSize):
     iter_max = 1  # Initialize variable
 
     for j in ensembleMemberIndices:
-        objFunValuesOfMember = np.reshape(np.loadtxt(
+        try:
+            objFunValuesOfMember = np.reshape(np.loadtxt(
                                f'objFunValues_{i}.txt'), (1, -1)).tolist()
+        except:
+            print(f'Cannot open objFunValues_{i}.txt')
+            break
         iterations = np.reshape(np.arange(len(objFunValuesOfMember[0])), 
                                 (1, -1)).tolist()
         maxIterOfMember = max(iterations[0])
@@ -79,8 +83,12 @@ def dataMismatchWithIteration_p5p50p95(ensembleSize, rankMember, nbIter):
     fig = plt.figure(figsize=(7,4))
 
     for i in np.arange(ensembleSize):
-        objFunValuesOfMember = np.reshape(
+        try:
+            objFunValuesOfMember = np.reshape(
                         np.log10(np.loadtxt(f'objFunValues_{i}.txt')), (1,-1))
+        except:
+            print(f'Cannot open objFunValues_{i}.txt')
+            break
         length = objFunValuesOfMember.shape[1]
         objFunEns[i, 0:length] = objFunValuesOfMember
 
@@ -124,8 +132,12 @@ def showObs():
 
     # Load array of observation by location
     timeObs = np.arange(0, 43200+1200, 1200)  # includes time zero which corresponds to the initial head computed from the steady-state simulation
-    headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
-    
+    try:
+        headObsByLoc = np.loadtxt('hObs_byLoc.txt') # includes initial steady-state head
+    except:
+        print('Cannot open hObs_byLoc.txt')
+        break
+        
     nrows = 3
     ncols = 5
     fig, axarr = plt.subplots(nrows, ncols, figsize=(8, 9))
@@ -157,8 +169,12 @@ def showObs():
                                   'Zone 5']
     # Load array of observation by location
     time = np.arange(300, 6300, 300)
-    qObsByLoc = np.loadtxt('qObs_byLoc.txt')
-    
+    try:
+        qObsByLoc = np.loadtxt('qObs_byLoc.txt')
+    except:
+        print('Cannot open qObs_byLoc.txt')
+        break
+        
     axarr[2, 0].set_ylabel('Flowrates (m' + r'$^3$' + '/s)', fontsize=9) 
     axarr[2, 0].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
     axarr[2, 1].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
@@ -185,10 +201,6 @@ def showObs():
     axarr[2, 3].set_ylim(-0.001, 0.001)
     axarr[2, 3].yaxis.set_ticks(np.array([0]))   
     axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
-
-#   figureName = f'HQ_priorPost_{iteration)_{ensembleSize}.png'
-#   plt.savefig(figureName, bbox_inches="tight", dpi=300)
-#   plt.show()
 
     return
 
@@ -222,8 +234,12 @@ def simDataEns(iteration, ensembleSize):
     # computed from the steady-state simulation
     timeObs = np.arange(0, 43200+1200, 1200)  
     # Head series includes initial steady-state head
-    headObsByLoc = np.loadtxt('hObs_byLoc.txt')
- 
+    try:
+        headObsByLoc = np.loadtxt('hObs_byLoc.txt')
+    except:
+        print('Cannot open hObs_byLoc.txt')
+        break
+
     # Load prior ensemble of simulated data
     headSimEns_ini = np.loadtxt(f'hSim_ens_0_{ensembleSize}.txt')
     # Load last updated ensemble of simulated data
@@ -273,8 +289,12 @@ def simDataEns(iteration, ensembleSize):
     flowrObsLocationNames = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5']
     # Load array of observation by location
     time = np.arange(300, 6300, 300)
-    qObsByLoc = np.loadtxt('qObs_byLoc.txt')
-
+    try:
+        qObsByLoc = np.loadtxt('qObs_byLoc.txt')
+    except:
+        print('Cannot open qObs_byLoc.txt')
+        break
+        
     # Load prior ensemble of simulated data
     qSimEns_ini = np.loadtxt(f'qSim_ens_0_{ensembleSize}.txt') 
     qSimEns_last = np.loadtxt(f'qSim_ens_{iteration}_{ensembleSize}.txt') 
@@ -319,10 +339,6 @@ def simDataEns(iteration, ensembleSize):
     axarr[2, 3].yaxis.set_ticks(np.array([0]))   
     axarr[2, 3].yaxis.set_major_formatter(ticker.FormatStrFormatter('%0.0e'))
 
-#   figureName = f'HQ_priorPost_{iteration}_{ensembleSize}.png'
-#   plt.savefig(figureName, bbox_inches="tight", dpi=300)
-#   plt.show()
-
     return
 
 
@@ -348,7 +364,11 @@ def simHead_rejectionSamplingPosterior():
     # computed from the steady-state simulation
     timeObs = np.arange(0, 43200+1200, 1200) 
     # Head series includes initial steady-state head
-    headObsByLoc = np.loadtxt('hObs_byLoc.txt')
+    try:
+        headObsByLoc = np.loadtxt('hObs_byLoc.txt')
+    except:
+        print('Cannot open hObs_byLoc.txt')
+        break
 
     # Load ensemble of simulated data corresponding to log K ensemble obtained
     # by rejection sampling 
@@ -359,7 +379,6 @@ def simHead_rejectionSamplingPosterior():
     
     nrows = 2
     ncols = 5
-#   plt.close('all')
     fig, axarr = plt.subplots(nrows, ncols, figsize=(8, 6))
     fig.subplots_adjust(hspace=0.3)
     fig.subplots_adjust(wspace=0.6)
@@ -413,28 +432,57 @@ def updatedCoarseVar_multiresoMPS(
             the MPS field simulated at the finest scale in pixels   
     """
     beforeIteration = iteration - 1
-    par = np.reshape(
-        np.loadtxt('ens_of_parameters_beforeUpdate_0.txt')[:, memberRank],
+    try:
+        par = np.reshape(
+            np.loadtxt('ens_of_parameters_beforeUpdate_0.txt')[:, memberRank],
         coarseGridDims)  # Not shown in figure
+    except:
+        print('Cannot open ens_of_parameters_beforeUpdate_0.txt')
+        break
+    
     parIni_min = np.min(par)
     parIni_max = np.max(par)
-    parUpdated = np.reshape(
+    
+    try:
+        parUpdated = np.reshape(
         np.loadtxt(f'ens_of_parameters_{beforeIteration}.txt')[:, memberRank],
         coarseGridDims)
-    pyrUpdated_beforeDS = np.reshape(
+    except:
+        print(f'Cannot open ens_of_parameters_{beforeIteration}.txt')
+        break
+    
+    try:
+        pyrUpdated_beforeDS = np.reshape(
             np.loadtxt(f'ens_of_updatedPyr_afterKalman_{beforeIteration}.txt')
                    [:, memberRank],
             coarseGridDims)
-    pyrUpdated_afterDS = np.reshape(
+    except:
+        print(f'Cannot open ens_of_updatedPyr_afterKalman_{beforeIteration}.txt')
+        break
+        
+    try:
+        pyrUpdated_afterDS = np.reshape(
             np.loadtxt(f'ens_of_updatedPyr_afterKalman-DS_{iteration}.txt')
                     [:, memberRank],
             coarseGridDims)
-    condFaciesSim = np.reshape(
+    except:
+        print(f'Cannot open ens_of_updatedPyr_afterKalman-DS_{iteration}.txt')
+        break
+        
+    try:
+        condFaciesSim = np.reshape(
             np.loadtxt(f'ens_of_MPSim_{iteration}.txt')[:, memberRank], 
             fineGridDims)
+    except:
+        print(f'Cannot open ens_of_MPSim_{iteration}.txt')
+        break
 
-    i_HD = np.loadtxt('sampledCells_xCoord.txt').astype(int)
-    j_HD = np.loadtxt('sampledCells_yCoord.txt').astype(int)
+    try:
+        i_HD = np.loadtxt('sampledCells_xCoord.txt').astype(int)
+        j_HD = np.loadtxt('sampledCells_yCoord.txt').astype(int)
+    except:
+        print('Cannot open sampledCells_xCoord.txt or sampledCells_yCoord.txt')
+        break
 
     maskMatrix = np.ones(coarseGridDims)
     maskMatrix[:, :] = np.nan
@@ -548,7 +596,11 @@ def conditionedCategoricalFields_4members(
                         ensemble member
     gridDims -- A tuple denoting the dimensions of the 2D grid
     """
-    ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), gridDims))
+    try:
+        ref = np.flipud(np.reshape(np.loadtxt('ref.txt'), gridDims))
+    except:
+        print('Cannot open ref.txt')
+        break
 
     ncols = 4
     nrows = 17
@@ -573,12 +625,20 @@ def conditionedCategoricalFields_4members(
 
             # Load data
             if i == 0:
-                mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
+                try:
+                    mpSim = np.flipud(np.reshape(np.loadtxt('iniMPSimEns.txt')
                                              [:, rank], gridDims))
+                except:
+                    print('Cannot open iniMPSimEns.txt')
+                    break
             else:
-                mpSim = np.flipud(np.reshape(np.loadtxt(
+                try:
+                    mpSim = np.flipud(np.reshape(np.loadtxt(
                       f'ens_of_MPSim_{i}.txt')[:, rank], gridDims))
-
+                except:
+                    print(f'Cannot open ens_of_MPSim_{i}.txt')
+                    break
+                    
             im = ax.imshow(mpSim, cmap=cmap, norm=norm, vmin=0, vmax=1, 
                            aspect='auto')
         
@@ -658,13 +718,21 @@ def meanMaps_vs_ref(gridDims, iterations, figsize=(7,7)):
         
         # Load data
         if i == 0:
-            mpSimEnsMean = np.flipud(
+            try:
+                mpSimEnsMean = np.flipud(
                     np.reshape(np.mean(np.loadtxt('iniMPSimEns.txt'), axis=1),
                                gridDims))
+            except:
+                print('Cannot open iniMPSimEns.txt')
+                break
         else:
-            mpSimEnsMean = np.flipud(
+            try:
+                mpSimEnsMean = np.flipud(
                     np.reshape(np.mean(np.loadtxt(f'ens_of_MPSim_{i}.txt'), axis=1),
                                gridDims))
+            except:
+                print(f'Cannot open ens_of_MPSim_{i}.txt')
+                break
 
         axs[j].tick_params(axis='x', labelsize=10)
         axs[j].tick_params(axis='y', labelsize=10)
@@ -700,12 +768,9 @@ def meanMaps_vs_ref(gridDims, iterations, figsize=(7,7)):
     cb = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
     cbar_ax.xaxis.set_ticks_position('top')
     cbar_ax.tick_params(labelsize=10)
-    #plt.title('Probability of channels')
 
     fig.text(0.04, 0.5, 'Depth (m)', va='center', rotation='vertical', fontsize=10)
     fig.text(0.5, 0.04, 'Distance to western boundary (m)', ha='center', fontsize=10)
-
-    #plt.savefig('meanMapB_paramNearObs.png', bbox_inches="tight", dpi=300)
 
     return
 
@@ -727,11 +792,20 @@ def rmseWithIterations(ensembleSize, criticalLength, lastIt, gridDims):
     rmseWithIterations -- A list of RMSE values starting from before 
                           any update up to iteration lastIt
     """
-    ref = np.reshape(np.loadtxt('ref.txt'), gridDims)[:, 0:criticalLength]           
+    try:
+        ref = np.reshape(np.loadtxt('ref.txt'), gridDims)[:, 0:criticalLength]
+    except:
+        print('Cannot open ref.txt')
+        break
 
     nbOfElements = gridDims[0]*gridDims[1] 
-    parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :], 
+    try:
+        parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :], 
                             (nbOfElements, ensembleSize))
+    except:
+        print('Cannot open iniMPSimEns.txt')
+        break
+        
     ensMean_ini = np.reshape(np.dot(parEns_ini, 
                                     np.ones((ensembleSize, 1))/ensembleSize),
                              gridDims)[:,0:criticalLength]
@@ -741,9 +815,14 @@ def rmseWithIterations(ensembleSize, criticalLength, lastIt, gridDims):
     rmseWithIterations = []
     rmseWithIterations.append(rmse_ini)
     for i in np.arange(1, lastIt+1):
-        parEns_calib = np.reshape(
+        try:
+            parEns_calib = np.reshape(
                 np.loadtxt(f'ens_of_MPSim_{i}.txt')[0:nbOfElements, :], 
                 (nbOfElements, ensembleSize))
+        except:
+            print(f'Cannot open ens_of_MPSim_{i}.txt')
+            break
+            
         ensMean_calib = np.reshape(
                 np.dot(parEns_calib, np.ones((ensembleSize, 1))/ensembleSize), 
                 gridDims)[:, 0:criticalLength]
@@ -772,8 +851,13 @@ def varReduction(ensembleSize, criticalLength, lastIt, gridDims):
                           any update up to iteration lastIt
     """
     nbOfElements = gridDims[0]*gridDims[1]
-    parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :],
+    try:
+        parEns_ini = np.reshape(np.loadtxt('iniMPSimEns.txt')[0:nbOfElements, :],
                             (nbOfElements, ensembleSize))
+    except:
+        print('Cannot open iniMPSimEns.txt')
+        break
+        
     ensVar_ini = np.reshape(
           np.sum((parEns_ini - np.reshape(
                       np.dot(parEns_ini, np.ones((ensembleSize, ensembleSize))
@@ -786,9 +870,14 @@ def varReduction(ensembleSize, criticalLength, lastIt, gridDims):
     meanEnsVarReduction = []
     meanEnsVarReduction.append(meanEnsVar_ini)
     for i in np.arange(1, lastIt+1):
-        ens_K_calib = np.reshape(
+        try:
+            ens_K_calib = np.reshape(
                 np.loadtxt(f'ens_of_MPSim_{i}.txt')[0:nbOfElements, :],
                 (nbOfElements, ensembleSize))
+        except:
+            print(f'Cannot open ens_of_MPSim_{i}.txt')
+            break
+            
         ensVar_fin = np.reshape(
               np.sum((ens_K_calib - np.reshape(np.dot(ens_K_calib, 
                      np.ones((ensembleSize, ensembleSize))/ensembleSize), 
@@ -832,11 +921,19 @@ def KLdiv(ensembleSize, criticalLength, lastIt, gridDims):
     for i in range(lastIt+1):
         # Load corresponding updated ensemble of facies fields 
         if i == 0:
-            estDist = np.reshape(
+            try:
+                estDist = np.reshape(
                     np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
+            except:
+                print('Cannot open iniMPSimEns.txt')
+                break
         else:
-            estDist = np.reshape(
+            try:
+                estDist = np.reshape(
                     np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
+            except:
+                print(f'Cannot open ens_of_MPSim_{i}.txt')
+                break
 
         # Initialize array representing a map of KL divergence values
         KLdivMap = np.zeros(gridDims)
@@ -904,13 +1001,22 @@ def shannonEntropy(ensembleSize, criticalLength, lastIt, gridDims):
 
         # Load corresponding file with ensemble of fields
         if i == 0:
-            faciesEns_ini = np.reshape(
+            try:
+                faciesEns_ini = np.reshape(
                     np.loadtxt('iniMPSimEns.txt'), (-1, ensembleSize))
+            except:
+                print('Cannot open iniMPSimEns.txt')
+                break
+                
             # Extract the facies values 
             allFacies = np.unique(faciesEns_ini)
         else:
-            faciesEns_ini = np.reshape(
+            try:
+                faciesEns_ini = np.reshape(
                     np.loadtxt(f'ens_of_MPSim_{i}.txt'), (-1, ensembleSize))
+            except:
+                print(f'Cannot open ens_of_MPSim_{i}.txt')
+                break
         
         # For each facies 
         for facies in allFacies:
@@ -972,15 +1078,23 @@ def ensembleOfConnectFunc(ensSize, it, fineGridDim_x, fineGridDim_y, axis, categ
     for i in zip(np.arange(2), np.array([0, it])):
         for j in np.arange(0, ensSize):
             if i[1] == 0:
-                mpSim = np.flipud(np.reshape(
+                try:
+                    mpSim = np.flipud(np.reshape(
                         np.loadtxt('iniMPSimEns_init.txt')[:, j],
                         (fineGridDim_y, fineGridDim_x)))
+                except:
+                    print('Cannot open iniMPSimEns_init.txt')
+                    break
                 connectFun = mpstool.connectivity.get_function(mpSim, axis)
                 connectFunEns_ini[:, j] = connectFun[category]
             else:
-                mpSim = np.flipud(np.reshape(
+                try:
+                    mpSim = np.flipud(np.reshape(
                         np.loadtxt(f'ens_of_MPSim_{i[1]}.txt')[:, j],
                         (fineGridDim_y, fineGridDim_x)))
+                except:
+                    print(f'Cannot open ens_of_MPSim_{i[1]}.txt')
+                    break
                 connectFun = mpstool.connectivity.get_function(mpSim, axis)
                 connectFunEns_fin[:, j] = connectFun[category]
 
