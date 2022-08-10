@@ -24,7 +24,7 @@ matplotlib==3.0.3
 mistune==0.8.4
 more-itertools==8.1.0
 -e git+https://github.com/UniNE-CHYN/mps_toolbox.git@e1383bbfcb8d8298ed2485cacb2c6315019415e3#egg=mpstool
-nbconvert==5.6.1
+nbconvert==6.3.0
 nbformat==5.0.3
 networkx==2.4
 notebook==6.0.2
